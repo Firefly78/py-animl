@@ -12,7 +12,6 @@ classifiers = [
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
-url = "https://github.com/Firefly78/py-animl"
 
 dependencies = []
 
@@ -22,6 +21,9 @@ dev = [
     "bumpver",
     "isort",
 ]
+
+[project.urls]
+homepage = "https://github.com/Firefly78/py-animl"
 
 [build-system]
 requires = ["setuptools>61.0"]
