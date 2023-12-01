@@ -56,4 +56,9 @@ class AnIMLDoc(XmlModel):
 
     @classmethod
     def load_xml(cls, node: Element) -> XmlModel:
-        return cls()
+        if node is None:
+            return None
+        return cls(
+            sample_set=SampleSet.load_xml(node.find("SampleSet")),
+            experiment_set=None,
+        )

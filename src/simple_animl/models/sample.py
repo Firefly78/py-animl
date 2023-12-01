@@ -6,19 +6,7 @@ from pydantic import Field
 
 from ..utils.regex import NC_NAME
 from .core import XmlModel
-
-
-def myfunc(a, *, b):
-    """_summary_
-
-    Args:
-        a (_type_): _description_
-        b (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
-    return a + b
+from .tags import TagSet
 
 
 class Sample(XmlModel):
@@ -38,7 +26,18 @@ class Sample(XmlModel):
     # TBD: Lots of fields to be added here
 
     # Children
-    # TBD: Lots of children to be added here
+
+    tag_set: Optional[TagSet] = None
+
+    @classmethod
+    def load_xml(cls, node) -> Sample:
+        if node is None:
+            return None
+        return cls(
+            name=node.attrib.get("name"),
+            sampleID=node.attrib.get("sampleID"),
+            tag_set=TagSet.load_xml(node.find("TagSet")),
+        )
 
 
 class SampleSet(XmlModel):
@@ -60,3 +59,12 @@ class SampleSet(XmlModel):
 
     # Children
     samples: list[Sample] = Field(default_factory=list)
+
+    @classmethod
+    def load_xml(cls, node) -> SampleSet:
+        if node is None:
+            return None
+        return cls(
+            id=node.attrib.get("id"),
+            samples=[Sample.load_xml(n) for n in node.findall("Sample")],
+        )

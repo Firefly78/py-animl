@@ -17,7 +17,7 @@ class XmlModel(BaseModel):
         return me
 
     @classmethod
-    def load_xml(node: Element) -> XmlModel:
+    def load_xml(cls, node: Element) -> XmlModel:
         """Return a pydantic model instance from an ElementTree Element."""
         raise NotImplementedError
 
