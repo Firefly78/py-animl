@@ -25,7 +25,10 @@ dev = [
 ]
 
 [project.urls]
-homepage = "https://github.com/Firefly78/py-animl"
+"Homepage" = "https://github.com/Firefly78/py-animl"
+"Repository" = "https://github.com/Firefly78/py-animl"
+"Bug Tracker" = "https://github.com/Firefly78/py-animl/issues"
+"AnIML: Home" = "https://animl.org"
 
 [build-system]
 requires = ["setuptools>61.0"]
