@@ -1,9 +1,8 @@
 from __future__ import annotations
 
+import logging
 from typing import Any
 from xml.etree import ElementTree as ET
-
-import logging
 
 logger = logging.getLogger(__name__)
 

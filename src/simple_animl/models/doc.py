@@ -1,11 +1,11 @@
 from __future__ import annotations
+
 from io import StringIO
 from typing import IO, Optional, Union
 from xml.etree.ElementTree import ElementTree
 
-from .sample import Sample, SampleSet
-
 from .core import Field, XmlModel
+from .sample import Sample, SampleSet
 
 VERSION: str = "0.90"
 XMLNS: str = "urn:org:astm:animl:schema:core:draft:0.90"
