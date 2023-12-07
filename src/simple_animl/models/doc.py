@@ -16,8 +16,9 @@ XSI_SCHEMALOCATION: str = "urn:org:astm:animl:schema:core:draft:0.90 http://sche
 class AnIMLDoc(XmlModel):
     """Root Element for AnIML documents."""
 
-    tag = "AnIML"
+    tag = "AnIML"  # Override name to use during serialization
 
+    # Manadatory attributes
     version: str = Field.Attribute(default=VERSION)
     xmlns: Optional[str] = Field.Attribute(default=XMLNS)
     xmlns_xsi: Optional[str] = Field.Attribute(default=XMLNS_XSI, alias="xmlns:xsi")

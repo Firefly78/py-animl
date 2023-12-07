@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Optional
+
 from .category import Category
 from .core import Field, XmlModel
 from .tags import TagSet

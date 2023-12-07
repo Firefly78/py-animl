@@ -1,6 +1,22 @@
 class Field:
-    class Default:
+    """Container class for field types.
+
+    Ment to create a clearer syntax when using the contained classes.
+
+    ```python
+    Class MyModel(XmlModel):
+      name: str = Field.Attribute()
+      # name: str = Attribute() - Not as clear
+      value: str = Field.Attribute()
+    ```
+    """
+
+    class Base:
+        """Base-Field class. Not to be used directly."""
+
         def __init__(self, default=None, default_factory=None) -> None:
+            if type(self) is Field.Base:
+                raise TypeError("Field.Base cannot be directly instantiated")
             self.default = default
             self.default_factory = default_factory
             self.optional = False
@@ -24,7 +40,7 @@ class Field:
                 self.annotation = annotation
             return self
 
-    class Attribute(Default):
+    class Attribute(Base):
         def __init__(
             self, default=None, default_factory=None, alias: str = None
         ) -> None:
@@ -37,7 +53,7 @@ class Field:
                 raise TypeError(f"Invalid annotation '{self.annotation}'")
             return self
 
-    class Child(Default):
+    class Child(Base):
         def __init__(self, index=-1, default=None, default_factory=None) -> None:
             super().__init__(default=default, default_factory=default_factory)
             self.index = index  # Index defines order in which fields are serialized to xml - not implemented
@@ -50,5 +66,5 @@ class Field:
                 self.isList = True
             return self
 
-    class Text(Default):
+    class Text(Base):
         pass
