@@ -51,6 +51,14 @@ class Field:
         def __init__(self, index=-1, default=None, default_factory=None) -> None:
             super().__init__(default=default, default_factory=default_factory)
             self.index = index  # Index defines order in which fields are serialized to xml - not implemented
+            self.isList = False
+
+        def set_annotation(self, annotation: str):
+            super().set_annotation(annotation)
+            if annotation.lower().startswith("list["):
+                self.annotation = annotation[5:-1]
+                self.isList = True
+            return self
 
     class Text(Default):
         pass
@@ -200,7 +208,11 @@ class XmlModel:
                 raise ValueError(f"Multiple fields for child '{child.tag}'")
             name, field = a[0]
 
-            # TODO: Handle case of list
-            setattr(model, name, child_instance)
+            if field.isList:
+                if getattr(model, name) is None:  # List if None
+                    setattr(model, name, list())
+                getattr(model, name).append(child_instance)
+            else:
+                setattr(model, name, child_instance)
 
         return model
