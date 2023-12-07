@@ -2,10 +2,9 @@ from __future__ import annotations
 
 from typing import Optional
 
-from pydantic import Field
-
 from ..utils.regex import NC_NAME
-from .core import XmlModel
+from .category import Category
+from .core import Field, XmlModel
 from .tags import TagSet
 
 
@@ -19,25 +18,15 @@ class Sample(XmlModel):
     """
 
     # Mandatory fields
-    name: str = Field(..., description="Plain-text name of this item.")
-    sampleID: str = Field(..., description="Token with up to 1024 characters")
+    name: str = Field.Attribute()
+    sampleID: str = Field.Attribute()
 
     # Optional fields
     # TBD: Lots of fields to be added here
 
     # Children
-
-    tag_set: Optional[TagSet] = None
-
-    @classmethod
-    def load_xml(cls, node) -> Sample:
-        if node is None:
-            return None
-        return cls(
-            name=node.attrib.get("name"),
-            sampleID=node.attrib.get("sampleID"),
-            tag_set=TagSet.load_xml(node.find("TagSet")),
-        )
+    tag_set: Optional[TagSet] = Field.Child()
+    category: Optional[Category] = Field.Child()
 
 
 class SampleSet(XmlModel):
@@ -50,21 +39,7 @@ class SampleSet(XmlModel):
     """
 
     # Optional fields
-    id: Optional[str] = Field(
-        default=None,
-        pattern=NC_NAME,
-        description='Anchor point for digital signature. This identifier is referred \
-              to from the "Reference" element in a Signature. Unique per document.',
-    )
+    id: Optional[str] = Field.Attribute()
 
     # Children
-    samples: list[Sample] = Field(default_factory=list)
-
-    @classmethod
-    def load_xml(cls, node) -> SampleSet:
-        if node is None:
-            return None
-        return cls(
-            id=node.attrib.get("id"),
-            samples=[Sample.load_xml(n) for n in node.findall("Sample")],
-        )
+    samples: list[Sample] = Field.Child(default_factory=list)

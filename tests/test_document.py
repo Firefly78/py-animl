@@ -13,7 +13,6 @@ class TestDoc(unittest.TestCase):
     def test_Create(self):
         doc = AnIMLDoc()
         self.assertIsNone(doc.sample_set)
-        self.assertIsNone(doc.experiment_set)
 
     def test_Dump(self):
         doc = AnIMLDoc()
@@ -39,4 +38,3 @@ class TestDoc(unittest.TestCase):
         doc = AnIMLDoc.loads(txt)
         self.assertIsInstance(doc, AnIMLDoc)
         self.assertIsNone(doc.sample_set)
-        self.assertIsNone(doc.experiment_set)

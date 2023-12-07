@@ -1,12 +1,11 @@
 from __future__ import annotations
-
 from io import StringIO
 from typing import IO, Optional, Union
-from xml.etree.ElementTree import Element, ElementTree
+from xml.etree.ElementTree import ElementTree
 
-from simple_animl.models.sample import Sample, SampleSet
+from simple_animl.models.sample import SampleSet
 
-from .core import XmlModel
+from .core import Field, XmlModel
 
 VERSION: str = "0.90"
 XMLNS: str = "urn:org:astm:animl:schema:core:draft:0.90"
@@ -17,30 +16,16 @@ XSI_SCHEMALOCATION: str = "urn:org:astm:animl:schema:core:draft:0.90 http://sche
 class AnIMLDoc(XmlModel):
     """Root Element for AnIML documents."""
 
-    sample_set: Optional[SampleSet] = None
-    experiment_set: Optional[XmlModel] = None
+    tag = "AnIML"
 
-    def add(self, obj: Sample):
-        if isinstance(obj, Sample):
-            if self.sample_set is None:
-                self.sample_set = SampleSet()
-            self.sample_set.samples.append(obj)
-        else:
-            raise TypeError(f"Expected Sample, got {type(obj)}")
+    version: str = Field.Attribute(default=VERSION)
+    xmlns: Optional[str] = Field.Attribute(default=XMLNS)
+    xmlns_xsi: Optional[str] = Field.Attribute(default=XMLNS_XSI, alias="xmlns:xsi")
+    xsi_schemalocation: Optional[str] = Field.Attribute(
+        default=XSI_SCHEMALOCATION, alias="xsi:schemaLocation"
+    )
 
-    def dump_xml(self) -> Element:
-        me = Element(
-            "AnIML",
-            attrib={
-                "version": VERSION,
-                "xmlns": XMLNS,
-                "xmlns:xsi": XMLNS_XSI,
-                "xsi:schemaLocation": XSI_SCHEMALOCATION,
-            },
-        )
-        self._append_pydantic_children(me)
-        self._add_pydantic_fields(me)
-        return me
+    sample_set: SampleSet = Field.Child()
 
     @classmethod
     def loads(cls, xml: Union[IO, str]) -> AnIMLDoc:
@@ -53,12 +38,3 @@ class AnIMLDoc(XmlModel):
         et = ElementTree()
         et.parse(source=xml)
         return cls.load_xml(et.getroot())
-
-    @classmethod
-    def load_xml(cls, node: Element) -> XmlModel:
-        if node is None:
-            return None
-        return cls(
-            sample_set=SampleSet.load_xml(node.find("SampleSet")),
-            experiment_set=None,
-        )
