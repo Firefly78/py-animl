@@ -3,7 +3,7 @@ from io import StringIO
 from typing import IO, Optional, Union
 from xml.etree.ElementTree import ElementTree
 
-from simple_animl.models.sample import SampleSet
+from .sample import Sample, SampleSet
 
 from .core import Field, XmlModel
 

@@ -48,12 +48,9 @@ class Field:
             return self
 
     class Child(Default):
-        def __init__(
-            self, index=-1, default=None, default_factory=None, max_items=None
-        ) -> None:
+        def __init__(self, index=-1, default=None, default_factory=None) -> None:
             super().__init__(default=default, default_factory=default_factory)
             self.index = index  # Index defines order in which fields are serialized to xml - not implemented
-            self.max_items = max_items
 
     class Text(Default):
         pass
@@ -108,6 +105,21 @@ class XmlModel:
         if self.tag is None:
             self.tag = self.__class__.__name__
 
+    @classmethod
+    def _get_type_from_tag_(cls, tag: str) -> type[XmlModel]:
+        L = list(
+            filter(
+                lambda x: x.tag == tag or x.__name__ == tag,
+                XmlModel.__subclasses__(),
+            )
+        )
+        if len(L) == 0:
+            raise ValueError(f"Unable to find class with name '{tag}'")
+        elif len(L) > 1:
+            raise ValueError(f"Multiple classes with name '{tag}'")
+        else:
+            return L[0]
+
     def dump_xml(self) -> ET.Element:
         x = ET.Element(self.tag)
 
@@ -145,7 +157,7 @@ class XmlModel:
 
     @classmethod
     def load_xml(cls, x: ET.Element) -> XmlModel:
-        if x.tag != cls.tag:
+        if x.tag != cls.tag and x.tag != cls.__name__:
             raise ValueError(f"Expected tag '{cls.tag}', got '{x.tag}'")
         model = cls()
 
@@ -173,8 +185,22 @@ class XmlModel:
 
         # Load children
         for child in x:
-            child.tag
+            # Create child instance from xml
+            child_instance = cls._get_type_from_tag_(child.tag).load_xml(child)
+            # Find someplace to store it...
+            a = list(
+                filter(
+                    lambda x: x[1].annotation == child_instance.__class__.__name__,
+                    model._model_children.items(),
+                )
+            )
+            if len(a) == 0:
+                raise ValueError(f"Unable to find field for child '{child.tag}'")
+            if len(a) > 1:
+                raise ValueError(f"Multiple fields for child '{child.tag}'")
+            name, field = a[0]
 
-        print(model)
+            # TODO: Handle case of list
+            setattr(model, name, child_instance)
 
         return model

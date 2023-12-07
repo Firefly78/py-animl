@@ -15,21 +15,23 @@ class TestSample(unittest.TestCase):
         doc = AnIMLDoc()
         s1 = Sample(name="Sample 1", sampleID="1234")
         s2 = Sample(name="Sample 2", sampleID="5678")
-        doc.add(s1)
-        doc.add(s2)
+        doc.sample_set = SampleSet()
+        doc.sample_set.add(s1)
+        doc.sample_set.add(s2)
         self.assertIn(s1, doc.sample_set.samples)
         self.assertIn(s2, doc.sample_set.samples)
 
     def test_SetID(self):
         doc = AnIMLDoc()
         doc.sample_set = SampleSet(id="Hello")
-        doc.add(Sample(name="Sample 1", sampleID="1234"))
+        doc.sample_set.add(Sample(name="Sample 1", sampleID="1234"))
 
     def test_Dump(self):
         doc = AnIMLDoc()
-        doc.add(Sample(name="Sample 1", sampleID="1"))
-        doc.add(Sample(name="Sample 2", sampleID="2"))
-        doc.add(Sample(name="Sample 3", sampleID="3"))
+        doc.sample_set = SampleSet()
+        doc.sample_set.add(Sample(name="Sample 1", sampleID="1"))
+        doc.sample_set.add(Sample(name="Sample 2", sampleID="2"))
+        doc.sample_set.add(Sample(name="Sample 3", sampleID="3"))
         xml = doc.dump_xml()
         """
         xml = <AnIML version="0.90"

@@ -43,3 +43,8 @@ class SampleSet(XmlModel):
 
     # Children
     samples: list[Sample] = Field.Child(default_factory=list)
+
+    def add(self, sample: Sample) -> None:
+        if self.samples is None:
+            self.samples = list()
+        self.samples.append(sample)
