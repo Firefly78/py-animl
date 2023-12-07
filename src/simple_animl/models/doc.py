@@ -5,7 +5,7 @@ from typing import IO, Optional, Union
 from xml.etree.ElementTree import ElementTree
 
 from .core import Field, XmlModel
-from .sample import Sample, SampleSet
+from .sample import SampleSet
 
 VERSION: str = "0.90"
 XMLNS: str = "urn:org:astm:animl:schema:core:draft:0.90"

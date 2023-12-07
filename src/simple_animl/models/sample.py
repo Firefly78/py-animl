@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 from typing import Optional
-
-from ..utils.regex import NC_NAME
 from .category import Category
 from .core import Field, XmlModel
 from .tags import TagSet

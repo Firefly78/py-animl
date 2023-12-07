@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from typing import Optional
-from xml.etree.ElementTree import Element
 
 from .core import Field, XmlModel
 
