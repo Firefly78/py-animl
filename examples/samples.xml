@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AnIML version="0.90"
+    xmlns="urn:org:astm:animl:schema:core:draft:0.90"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="urn:org:astm:animl:schema:core:draft:0.90 http://schemas.animl.org/current/animl-core.xsd">
+
+    <SampleSet id="öabc02">
+        <Sample name="" sampleID=""></Sample>
+    </SampleSet>
+</AnIML>

@@ -1,0 +1,56 @@
+[project]
+name = "simple-animl"
+version = "0.0.0"
+authors = [
+  { name="Erik Trygg", email="etrg@novonordisk.com" },
+]
+description = "Python library for working with ANIML files"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "black",
+    "bumpver",
+    "isort",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/Firefly78/py-animl"
+"Repository" = "https://github.com/Firefly78/py-animl"
+"Bug Tracker" = "https://github.com/Firefly78/py-animl/issues"
+"AnIML: Home" = "https://animl.org"
+
+[build-system]
+requires = ["setuptools>61.0"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["simple_animl*"]
+
+[tool.isort]
+profile = "black"
+
+[tool.bumpver]
+current_version = "0.0.0"
+version_pattern = "MAJOR.MINOR.PATCH"
+commit_message = "bump version {old_version} -> {new_version}"
+tag_message = "v{new_version}"
+tag_scope = "default"
+commit = true
+tag = true
+push = false
+
+[tool.bumpver.file_patterns]
+"pyproject.toml" = [
+    'current_version = "{version}"',
+    'version = "{version}"',
+]
