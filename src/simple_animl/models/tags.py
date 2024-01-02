@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from .core import Field, XmlModel
+from ..core import Field, XmlModel
 
 
 class Tag(XmlModel):

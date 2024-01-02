@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from typing import Optional
-from .core import Field
-from .core import XmlModel
+
+from ..core import Field, XmlModel
 
 
 class Category(XmlModel):

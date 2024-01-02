@@ -4,7 +4,7 @@ from io import StringIO
 from typing import IO, Optional, Union
 from xml.etree.ElementTree import ElementTree
 
-from .core import Field, XmlModel
+from ..core import Field, XmlModel
 from .sample import SampleSet
 
 VERSION: str = "0.90"
