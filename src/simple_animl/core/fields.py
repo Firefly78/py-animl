@@ -1,3 +1,8 @@
+from typing import Union, _SpecialForm
+
+from .annotations import Annotation
+
+
 class Field:
     """Container class for field types.
 
@@ -14,12 +19,13 @@ class Field:
     class Base:
         """Base-Field class. Not to be used directly."""
 
-        def __init__(self, default=None, default_factory=None) -> None:
+        def __init__(self, *, default=None, default_factory=None) -> None:
             if type(self) is Field.Base:
-                raise TypeError("Field.Base cannot be directly instantiated")
+                raise ("Field.Base cannot be directly instantiated")
             self.default = default
             self.default_factory = default_factory
-            self.optional = False
+            self.annotation: Annotation = None
+            self.name: str = None
 
         def get_default(self):
             if self.default is not None:
@@ -29,42 +35,64 @@ class Field:
             else:
                 return None
 
-        def set_annotation(self, annotation: str):
-            if annotation is None:
-                raise TypeError("Annotation must be specified")
-
-            if annotation.startswith("Optional["):
-                self.annotation = annotation[9:-1]
-                self.optional = True
-            else:
-                self.annotation = annotation
-            return self
+        def has_default(self):
+            return self.default is not None or self.default_factory is not None
 
     class Attribute(Base):
+        """Attribute-Field class. Used to define attributes in XmlModel.
+
+        ```python
+        class MyModel(XmlModel):
+            spam: str = Field.Attribute(default="my-spam")
+        ```
+
+        => `<MyModel spam="my-spam" />`
+
+        Args:
+            alias (str): Alias for attribute, used when serializing to xml.
+            default (str): Default value for attribute, used if no value is provided.
+            default_factory (function): Function that returns a default value for attribute, used if no value is provided.
+        """
+
         def __init__(
-            self, default=None, default_factory=None, alias: str = None
+            self, *, alias: str = None, default=None, default_factory=None
         ) -> None:
-            super().__init__(default, default_factory)
+            if alias is not None and not isinstance(alias, str):
+                raise TypeError("alias must be a string or None")
+            super().__init__(default=default, default_factory=default_factory)
             self.alias = alias
 
-        def set_annotation(self, annotation: str):
-            super().set_annotation(annotation)
-            if self.annotation != "str":
-                raise TypeError(f"Invalid annotation '{self.annotation}'")
-            return self
-
     class Child(Base):
-        def __init__(self, index=-1, default=None, default_factory=None) -> None:
-            super().__init__(default=default, default_factory=default_factory)
-            self.index = index  # Index defines order in which fields are serialized to xml - not implemented
-            self.isList = False
+        """Child-Field class. Used to define xml child elements in XmlModel.
 
-        def set_annotation(self, annotation: str):
-            super().set_annotation(annotation)
-            if annotation.lower().startswith("list["):
-                self.annotation = annotation[5:-1]
-                self.isList = True
-            return self
+        ```python
+        class MyModel(XmlModel):
+            chilren: TestModel = Field.Child(default_factory=TestModel)
+        ```
+
+        => `<MyModel> <TestModel /> </MyModel>`
+
+        Args:
+            default (XmlModel): Default value for child element, used if no value is provided.
+            default_factory (function): Function that returns a default value for child element, used if no value is provided.
+        """
+
+        def __init__(self, default=None, default_factory=None) -> None:
+            super().__init__(default=default, default_factory=default_factory)
 
     class Text(Base):
+        """Text-Field class. Used to define the text content in a XmlModel element.
+
+        ```python
+        class MyModel(XmlModel):
+            content: str = Field.Text(default="my text content")
+        ```
+
+        => `<MyModel>my text content</MyModel>`
+
+        Args:
+            default (str): Default value for text content, used if no value is provided.
+            default_factory (function): Function that returns a default value for text content, used if no value is provided.
+        """
+
         pass

@@ -1,96 +1,172 @@
 from __future__ import annotations
 
 import logging
-from typing import Any
+from copy import copy
+from typing import Any, overload
 from xml.etree import ElementTree as ET
 
+from .annotations import Annotation
 from .fields import Field
 
 logger = logging.getLogger(__name__)
 
 
-class XmlModel:
-    tag: str = None  # Override in subclass if tag is different from class name
+class XmlMeta(type):
+    """Meta class used to evaluate fields on class definition"""
 
-    def __init__(self, **kwargs) -> None:
-        self._init_tag_()
-        self._init_model_()
-        self._init_fields_(kwargs)
+    def __new__(cls, name: str, bases: tuple[type], attrs: dict[str, Any]):
+        """Called when a new class is defined"""
+        # If model name is XmlModel - just define it and return
+        # It is not possible to access the 'XmlModel' type - since it is not yet defined
+        # Note to self: super().__new__ has side effects, make sure it is never run twice!
+        if name == "XmlModel":
+            return super().__new__(cls, name, bases, attrs)  # Just return (Do nothing)
 
-    def _init_fields_(self, kwargs: dict[str, Any]):
-        for k in self._model_attributes:
-            setattr(self, k, getattr(self, k).get_default())
-        for k in self._model_children:
-            setattr(self, k, getattr(self, k).get_default())
-        for k in self._model_text:
-            setattr(self, k, getattr(self, k).get_default())
+        # Check that created class is a subclass of XmlModel
+        if XmlModel not in bases:
+            raise TypeError(f"Only XmlModel can be used with XmlMeta not '{name}'")
 
-        for k, v in kwargs.items():
-            if k in self._model_attributes:
-                setattr(self, k, v)
-            elif k in self._model_children:
-                setattr(self, k, v)
-            elif k in self._model_text:
-                setattr(self, k, v)
-            else:
-                KeyError(f"Invalid parameter: '{k}'")
+        # Extract fields and tag details
+        fields = cls.extract_fields(attrs)
+        tag = cls.get_tag(name, attrs)
 
-    def _init_model_(self):
-        self._model_attributes: dict[str, Field.Attribute] = {}
-        self._model_children: dict[str, Field.Child] = {}
-        self._model_text: dict[str, Field.Text] = {}
-        A = self.__annotations__
-        for name, annotation in A.items():
-            try:
-                attr = getattr(self.__class__, name)
-            except AttributeError:
-                continue  # not initiated field - ok
-            if isinstance(attr, Field.Attribute):
-                self._model_attributes[name] = attr.set_annotation(annotation)
-            elif isinstance(attr, Field.Child):
-                self._model_children[name] = attr.set_annotation(annotation)
-            elif isinstance(attr, Field.Text):
-                self._model_text[name] = attr.set_annotation(annotation)
-            else:
-                pass  # Not part of model - ok
+        # Update static attributes
+        attrs["_fields"] = fields
+        attrs["tag"] = tag
 
-    def _init_tag_(self):
-        if self.tag is None:
-            self.tag = self.__class__.__name__
+        cls.check_restrictions(fields)
+
+        # Return class
+        return super().__new__(cls, name, bases, attrs)
 
     @classmethod
-    def _get_type_from_tag_(cls, tag: str) -> type[XmlModel]:
-        L = list(
-            filter(
-                lambda x: x.tag == tag or x.__name__ == tag,
-                XmlModel.__subclasses__(),
+    def check_restrictions(cls, fields: list[Field.Base]):
+        """Check that the model follows all restrictions"""
+
+        # Check that there is at most one text field
+        if len(list(filter(lambda x: isinstance(x, Field.Text), fields))) > 1:
+            raise TypeError("Only one text field allowed")
+
+    @classmethod
+    def extract_fields(cls, attrs: dict[str, Any]) -> list[Field.Base]:
+        """Extracts details on how an object's/model's fields are to be serialized"""
+
+        # Extract annotation information from attrs
+        annotation_lookup: dict[str, Any] = attrs.get("__annotations__", {})
+
+        def _get_field(attr_name: str, value: Field.Base):
+            # Check if annotation is available
+            if attr_name not in annotation_lookup:
+                raise TypeError(f"Field missing annotation: '{attr_name}'")
+
+            value.name = attr_name  # Record field name
+            value.annotation = Annotation.parse(annotation_lookup[attr_name])  # Magic
+            return value
+
+        # Run get_field on all attributes with content of type Field.Base
+        return [_get_field(n, v) for n, v in attrs.items() if isinstance(v, Field.Base)]
+
+    @classmethod
+    def get_tag(cls, name: str, attrs: dict[str, Any]):
+        """Get the XML tag to match this model to"""
+
+        # If user has not provided an overwrite
+        if "tag" not in attrs or attrs["tag"] is None:
+            return name  # Use default
+        return attrs["tag"]  # Otherwise - use user provided one.
+
+
+def class_from_tag(tag: str):
+    """Helper function for getting an XmlModel subclass from a name-string"""
+    L = list(filter(lambda x: x.tag == tag, XmlModel.__subclasses__()))
+    if len(L) == 0:
+        raise ValueError(f"Unable to find class with tag '{tag}'")
+    elif len(L) > 1:
+        raise ValueError(f"Multiple classes with tag '{tag}'")
+    else:
+        return L[0]
+
+
+class XmlModel(metaclass=XmlMeta):
+    tag: str = None  # Override in subclass if tag is different from class name
+
+    _fields: list[Field.Base] = list()
+
+    def __init__(self, **kwargs) -> None:
+        self._init_fields_(**kwargs)
+
+    def _init_fields_(self, **kwargs):
+        kwargs = copy(kwargs)
+
+        # Set all fields to provided or default values
+        for i in self._fields:  # All fields
+            key = (
+                i.alias
+                if isinstance(i, Field.Attribute) and i.alias is not None
+                else i.name
             )
-        )
-        if len(L) == 0:
-            raise ValueError(f"Unable to find class with name '{tag}'")
-        elif len(L) > 1:
-            raise ValueError(f"Multiple classes with name '{tag}'")
-        else:
-            return L[0]
+            if (
+                key not in kwargs
+                and not i.annotation.isOptional
+                and not i.has_default()
+            ):
+                raise KeyError(f"Missing parameter: '{key}'")
+            if key in kwargs:
+                # TODO: Add type check here
+                setattr(self, i.name, kwargs[key])
+            else:
+                setattr(self, i.name, i.get_default())
+
+    @overload
+    @classmethod
+    def _get_fields(cls, mask: type[Field.Attribute] = None) -> list[Field.Attribute]:
+        ...
+
+    @overload
+    @classmethod
+    def _get_fields(cls, mask: type[Field.Child] = None) -> list[Field.Child]:
+        ...
+
+    @overload
+    @classmethod
+    def _get_fields(cls, mask: type[Field.Text] = None) -> list[Field.Text]:
+        ...
+
+    @classmethod
+    def _get_fields(cls, mask=None):
+        if filter is None:
+            return cls._fields
+        return list(filter(lambda x: isinstance(x, mask), cls._fields))
 
     def dump_xml(self) -> ET.Element:
         x = ET.Element(self.tag)
 
         # Dump attributes
-        x.attrib = {
-            field.alias if field.alias is not None else name: getattr(self, name)
-            for name, field in self._model_attributes.items()
-            if getattr(self, name) is not None
-        }
+        x.attrib = self.dump_xml_attributes()
 
         # Dump text
-        if self._model_text:
-            x.text = self._model_text[0]
+        x.text = self.dump_xml_text()
 
         # Dump children
-        for name in self._model_children.keys():
+        x.extend(self.dump_xml_children())
+
+        return x
+
+    def dump_xml_attributes(self):
+        return {
+            field.alias
+            if field.alias is not None
+            else field.name: getattr(self, field.name)
+            for field in type(self)._get_fields(Field.Attribute)
+            if getattr(self, field.name) is not None
+        }
+
+    def dump_xml_children(self) -> list[ET.Element]:
+        items = []
+
+        for field in type(self)._get_fields(Field.Child):
             try:
-                model = getattr(self, name)
+                model = getattr(self, field.name)
             except AttributeError:
                 continue
             if model is None:
@@ -98,66 +174,121 @@ class XmlModel:
             if isinstance(model, list):
                 for i in model:
                     if isinstance(i, XmlModel):
-                        x.append(i.dump_xml())
+                        items.append(i.dump_xml())
                     else:
                         raise TypeError
             elif isinstance(model, XmlModel):
-                x.append(model.dump_xml())
+                items.append(model.dump_xml())
             else:
                 raise TypeError
 
-        return x
+        return items
+
+    def dump_xml_text(self):
+        try:
+            text = type(self)._get_fields(Field.Text)[0]  # There can be only one
+        except IndexError:
+            text = None
+
+        if text is not None:  # There is a text field
+            t = getattr(self, text.name)
+
+            # Check for None
+            if t is None and not text.annotation.isOptional:
+                raise Exception(f"Text field '{text.name}' is missing")
+
+            # Check type
+            if not isinstance(t, str):
+                raise Exception(f"Text field '{text.name}' type must be string")
+            return t
+
+        return None
 
     @classmethod
-    def load_xml(cls, x: ET.Element) -> XmlModel:
-        if x.tag != cls.tag and x.tag != cls.__name__:
+    def load_xml(cls, x: ET.Element):
+        # Check matching tag
+        if x.tag != cls.tag:
             raise ValueError(f"Expected tag '{cls.tag}', got '{x.tag}'")
-        model = cls()
+
+        # Create arguments list
+        arguments = {}
 
         # Load attributes
-        # TODO: Check that no additional fields are present
-        for name, field in model._model_attributes.items():
-            # Replace name with alias if present
-            name = field.alias if field.alias is not None else name
+        arguments.update(cls.load_xml_attributes(x))
 
-            if field.optional:
+        # Load text
+        arguments.update(cls.load_xml_text(x))
+
+        # Load children
+        arguments.update(cls.load_xml_children(x))
+
+        # Create instance and return
+        return cls(**arguments)
+
+    @classmethod
+    def load_xml_attributes(cls, x: ET.Element):
+        arguments = {}
+
+        # TODO: Check that no additional fields are present
+        for attr in cls._get_fields(Field.Attribute):
+            # Replace name with alias if present
+            name = attr.alias if attr.alias is not None else attr.name
+
+            if attr.annotation.isOptional:
                 if name not in x.attrib:
                     continue  # Skip optional fields that are not present
 
             if name not in x.attrib:
                 raise ValueError(f"Missing attribute '{name}'")
-            setattr(model, name, x.attrib[name])
+            arguments[name] = x.attrib[name]
 
-        # Load text
-        # TODO: Check that text is not present if not allowed
-        for name, field in model._model_text.items():
-            if x.text is None:
-                logger.warning(f"Missing text for field '{name}'")
-            setattr(model, model._model_text[0], x.text)
-            break  # Only one text field allowed
+        return arguments
 
-        # Load children
+    @classmethod
+    def load_xml_children(cls, x: ET.Element):
+        arguments = {}
+
+        child_fields = cls._get_fields(Field.Child)
         for child in x:
             # Create child instance from xml
-            child_instance = cls._get_type_from_tag_(child.tag).load_xml(child)
+            child_instance = class_from_tag(child.tag).load_xml(child)
+
             # Find someplace to store it...
-            a = list(
+            a: list[Field.Child] = list(
                 filter(
-                    lambda x: x[1].annotation == child_instance.__class__.__name__,
-                    model._model_children.items(),
+                    lambda x: x.annotation._type == child_instance.__class__.__name__,
+                    child_fields,
                 )
             )
+
             if len(a) == 0:
                 raise ValueError(f"Unable to find field for child '{child.tag}'")
             if len(a) > 1:
                 raise ValueError(f"Multiple fields for child '{child.tag}'")
-            name, field = a[0]
+            child_field = a[0]
 
-            if field.isList:
-                if getattr(model, name) is None:  # List if None
-                    setattr(model, name, list())
-                getattr(model, name).append(child_instance)
+            if child_field.annotation.isList:
+                if child_field.name not in arguments:  # No list found
+                    arguments[child_field.name] = list()
+                arguments[child_field.name].append(child_instance)
             else:
-                setattr(model, name, child_instance)
+                arguments[child_field.name] = child_instance
 
-        return model
+        return arguments
+
+    @classmethod
+    def load_xml_text(cls, x: ET.Element):
+        arguments = {}
+
+        # TODO: Check that text is not present if not allowed
+        try:
+            txt = cls._get_fields(Field.Text)[0]
+        except IndexError:
+            return arguments
+
+        if x.text is None and not txt.annotation.isOptional:
+            raise ValueError(f"Missing required text field '{txt.name}'")
+
+        arguments[txt.name] = x.text
+
+        return arguments
