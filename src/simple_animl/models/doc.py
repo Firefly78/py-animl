@@ -19,14 +19,14 @@ class AnIMLDoc(XmlModel):
     tag = "AnIML"  # Override name to use during serialization
 
     # Manadatory attributes
-    version: str = Field.Attribute(default=VERSION)
+    version: Optional[str] = Field.Attribute(default=VERSION)
     xmlns: Optional[str] = Field.Attribute(default=XMLNS)
     xmlns_xsi: Optional[str] = Field.Attribute(default=XMLNS_XSI, alias="xmlns:xsi")
     xsi_schemalocation: Optional[str] = Field.Attribute(
         default=XSI_SCHEMALOCATION, alias="xsi:schemaLocation"
     )
 
-    sample_set: SampleSet = Field.Child()
+    sample_set: Optional[SampleSet] = Field.Child()
 
     @classmethod
     def loads(cls, xml: Union[IO, str]) -> AnIMLDoc:

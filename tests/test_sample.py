@@ -72,7 +72,6 @@ class TestSample(unittest.TestCase):
         </AnIML>"""
 
         doc = AnIMLDoc.loads(txt)
-        print(doc)
         samples = doc.sample_set.samples
         self.assertEqual(len(samples), 3)
         self.assertEqual(samples[0].name, "Sample 1")
