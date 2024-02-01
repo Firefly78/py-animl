@@ -88,14 +88,23 @@ def class_from_tag(tag: str):
 
 
 class XmlModel(metaclass=XmlMeta):
+    """Base class used to serialize/deserialize models to/from XML
+
+    Args:
+        tag (str): Element tag to use when serializing this model, if None will use class name
+        _fields (list[Field.Base]): List of all serializable fields (attributes, children, text)
+    """
+
     tag: str = None  # Override in subclass if tag is different from class name
 
     _fields: list[Field.Base] = list()
 
     def __init__(self, **kwargs) -> None:
+        """Default constructor, makes sure all fields are set to default or provided values"""
         self._init_fields_(**kwargs)
 
     def _init_fields_(self, **kwargs):
+        """Helper function for initializing fields"""
         kwargs = copy(kwargs)
 
         # Set all fields to provided or default values
@@ -119,52 +128,56 @@ class XmlModel(metaclass=XmlMeta):
 
     @overload
     @classmethod
-    def _get_fields(cls, mask: type[Field.Attribute] = None) -> list[Field.Attribute]:
+    def _get_fields_(cls, mask: type[Field.Attribute] = None) -> list[Field.Attribute]:
         ...
 
     @overload
     @classmethod
-    def _get_fields(cls, mask: type[Field.Child] = None) -> list[Field.Child]:
+    def _get_fields_(cls, mask: type[Field.Child] = None) -> list[Field.Child]:
         ...
 
     @overload
     @classmethod
-    def _get_fields(cls, mask: type[Field.Text] = None) -> list[Field.Text]:
+    def _get_fields_(cls, mask: type[Field.Text] = None) -> list[Field.Text]:
         ...
 
     @classmethod
-    def _get_fields(cls, mask=None):
+    def _get_fields_(cls, mask=None):
+        """Helper function for getting fields of a specific type"""
         if filter is None:
             return cls._fields
         return list(filter(lambda x: isinstance(x, mask), cls._fields))
 
     def dump_xml(self) -> ET.Element:
+        """Dump this model and its children to an XML etree object"""
         x = ET.Element(self.tag)
 
         # Dump attributes
-        x.attrib = self.dump_xml_attributes()
+        x.attrib = self._dump_xml_attributes_()
 
         # Dump text
-        x.text = self.dump_xml_text()
+        x.text = self._dump_xml_text_()
 
         # Dump children
-        x.extend(self.dump_xml_children())
+        x.extend(self._dump_xml_children_())
 
         return x
 
-    def dump_xml_attributes(self):
+    def _dump_xml_attributes_(self):
+        """Helper function for dumping attributes to XML"""
         return {
             field.alias
             if field.alias is not None
             else field.name: getattr(self, field.name)
-            for field in type(self)._get_fields(Field.Attribute)
+            for field in type(self)._get_fields_(Field.Attribute)
             if getattr(self, field.name) is not None
         }
 
-    def dump_xml_children(self) -> list[ET.Element]:
+    def _dump_xml_children_(self) -> list[ET.Element]:
+        """Helper function for dumping children to XML"""
         items = []
 
-        for field in type(self)._get_fields(Field.Child):
+        for field in type(self)._get_fields_(Field.Child):
             try:
                 model = getattr(self, field.name)
             except AttributeError:
@@ -184,9 +197,10 @@ class XmlModel(metaclass=XmlMeta):
 
         return items
 
-    def dump_xml_text(self):
+    def _dump_xml_text_(self):
+        """Helper function for dumping text content to XML"""
         try:
-            text = type(self)._get_fields(Field.Text)[0]  # There can be only one
+            text = type(self)._get_fields_(Field.Text)[0]  # There can be only one
         except IndexError:
             text = None
 
@@ -206,6 +220,7 @@ class XmlModel(metaclass=XmlMeta):
 
     @classmethod
     def load_xml(cls, x: ET.Element):
+        """Create an XmlModel from an XML etree object"""
         # Check matching tag
         if x.tag != cls.tag:
             raise ValueError(f"Expected tag '{cls.tag}', got '{x.tag}'")
@@ -214,23 +229,29 @@ class XmlModel(metaclass=XmlMeta):
         arguments = {}
 
         # Load attributes
-        arguments.update(cls.load_xml_attributes(x))
+        arguments.update(cls._load_xml_attributes_(x))
 
         # Load text
-        arguments.update(cls.load_xml_text(x))
+        arguments.update(cls._load_xml_text_(x))
 
         # Load children
-        arguments.update(cls.load_xml_children(x))
+        arguments.update(cls._load_xml_children_(x))
 
         # Create instance and return
         return cls(**arguments)
 
     @classmethod
-    def load_xml_attributes(cls, x: ET.Element):
+    def _load_xml_attributes_(cls, x: ET.Element):
+        """
+        Helper function for loading attributes from XML
+
+        Args:
+            x (ET.Element): XML Element to load attributes from
+        """
         arguments = {}
 
         # TODO: Check that no additional fields are present
-        for attr in cls._get_fields(Field.Attribute):
+        for attr in cls._get_fields_(Field.Attribute):
             # Replace name with alias if present
             name = attr.alias if attr.alias is not None else attr.name
 
@@ -245,10 +266,16 @@ class XmlModel(metaclass=XmlMeta):
         return arguments
 
     @classmethod
-    def load_xml_children(cls, x: ET.Element):
+    def _load_xml_children_(cls, x: ET.Element):
+        """
+        Helper function for loading children from XML
+
+        Args:
+            x (ET.Element): XML Element to load children from
+        """
         arguments = {}
 
-        child_fields = cls._get_fields(Field.Child)
+        child_fields = cls._get_fields_(Field.Child)
         for child in x:
             # Create child instance from xml
             child_instance = class_from_tag(child.tag).load_xml(child)
@@ -277,12 +304,18 @@ class XmlModel(metaclass=XmlMeta):
         return arguments
 
     @classmethod
-    def load_xml_text(cls, x: ET.Element):
+    def _load_xml_text_(cls, x: ET.Element):
+        """
+        Helper function for loading text from XML
+
+        Args:
+            x (ET.Element): XML Element to load text from
+        """
         arguments = {}
 
         # TODO: Check that text is not present if not allowed
         try:
-            txt = cls._get_fields(Field.Text)[0]
+            txt = cls._get_fields_(Field.Text)[0]
         except IndexError:
             return arguments
 

@@ -31,6 +31,8 @@ class Annotation:
 
 
 class BaseAnnotation:
+    """Annotation parser base class"""
+
     @staticmethod
     def parse(annotation) -> Annotation:
         raise NotImplementedError
