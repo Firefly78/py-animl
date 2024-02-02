@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass
-from typing import Any, _GenericAlias, _SpecialForm, _UnionGenericAlias
+from pydoc import locate
+from typing import Any, Type, Union, _GenericAlias, _SpecialForm, _UnionGenericAlias
 
 
 @dataclass
@@ -11,6 +12,38 @@ class Annotation:
     isOptional: bool
     isList: bool
     # TODO: Make class support more complex annotations
+
+    __registered_types__ = {}
+
+    def check_type_ex(self, value: Any, name: str):
+        if value is None:
+            if self.isOptional:
+                return
+            else:
+                raise ValueError(f"Field '{name}' is not optional")
+
+        def get_types():
+            yield locate(self._type)  # Use for built in types
+            yield type(self).get_type_from_string(self._type)
+            raise TypeError(f"Type '{self._type}' not found")
+
+        for t in get_types():
+            if t is None:
+                continue
+            if isinstance(value, t):
+                return
+            if isinstance(value, list) and self.isList:
+                return
+            try:
+                t(value)  # Try to convert
+                return  # Conversion successful
+            except ValueError as ex:
+                raise
+            except Exception as ex:
+                pass
+            raise TypeError(
+                f"Type mismatch. Expected: '{self._type}', got: '{type(value).__name__}'"
+            )
 
     @classmethod
     def parse(cls, annotation: Any) -> Annotation:
@@ -28,6 +61,20 @@ class Annotation:
             return _parse(annotation, target=TypingAnnotation)
         else:
             raise TypeError
+
+    @classmethod
+    def register_type(cls, Type):
+        if Type.__name__ in cls.__registered_types__:
+            raise ValueError(f"Type '{Type.__name__}' already registered")
+        cls.__registered_types__[Type.__name__] = Type
+
+    @classmethod
+    def get_type_from_string(cls, name) -> Union[Type, None]:
+        return cls.__registered_types__.get(name, None)
+
+    @classmethod
+    def get_registered_types(cls) -> list[Type]:
+        return list(cls.__registered_types__.values())
 
 
 class BaseAnnotation:

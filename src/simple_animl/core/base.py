@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 from copy import copy
+from enum import Enum
 from typing import Any, overload
 from xml.etree import ElementTree as ET
 
@@ -36,8 +37,9 @@ class XmlMeta(type):
 
         cls.check_restrictions(fields)
 
-        # Return class
-        return super().__new__(cls, name, bases, attrs)
+        new_type = super().__new__(cls, name, bases, attrs)
+        XmlModel.register_type(new_type)  # Register class
+        return new_type
 
     @classmethod
     def check_restrictions(cls, fields: list[Field.Base]):
@@ -78,7 +80,10 @@ class XmlMeta(type):
 
 def class_from_tag(tag: str):
     """Helper function for getting an XmlModel subclass from a name-string"""
-    L = list(filter(lambda x: x.tag == tag, XmlModel.__subclasses__()))
+
+    all_models = Annotation.get_registered_types()
+    L = list(filter(lambda x: issubclass(x, XmlModel) and x.tag == tag, all_models))
+
     if len(L) == 0:
         raise ValueError(f"Unable to find class with tag '{tag}'")
     elif len(L) > 1:
@@ -120,11 +125,10 @@ class XmlModel(metaclass=XmlMeta):
                 and not i.has_default()
             ):
                 raise KeyError(f"Missing parameter: '{key}'")
-            if key in kwargs:
-                # TODO: Add type check here
-                setattr(self, i.name, kwargs[key])
-            else:
-                setattr(self, i.name, i.get_default())
+
+            value = kwargs[key] if key in kwargs else i.get_default()
+            i.annotation.check_type_ex(value, i.name)  # Type check
+            setattr(self, i.name, value)
 
     @overload
     @classmethod
@@ -144,7 +148,7 @@ class XmlModel(metaclass=XmlMeta):
     @classmethod
     def _get_fields_(cls, mask=None):
         """Helper function for getting fields of a specific type"""
-        if filter is None:
+        if mask is None:
             return cls._fields
         return list(filter(lambda x: isinstance(x, mask), cls._fields))
 
@@ -213,7 +217,14 @@ class XmlModel(metaclass=XmlMeta):
 
             # Check type
             if not isinstance(t, str):
-                raise Exception(f"Text field '{text.name}' type must be string")
+                raise TypeError(f"Text field '{text.name}' type must be string")
+
+            # Handle enums
+            if isinstance(t, Enum):
+                if not isinstance(t.value, str):  # Check if also string
+                    raise TypeError(f"Enum value must be string")
+                return t.value  # Return value of enum i.e. string
+
             return t
 
         return None
@@ -325,3 +336,8 @@ class XmlModel(metaclass=XmlMeta):
         arguments[txt.name] = x.text
 
         return arguments
+
+    @classmethod
+    def register_type(cls, t: type):
+        """Register a type for serialization/deserialization"""
+        Annotation.register_type(t)

@@ -1,4 +1,4 @@
-from typing import Union, _SpecialForm
+from typing import Any, Union, _SpecialForm
 
 from .annotations import Annotation
 
@@ -91,8 +91,9 @@ class Field:
         => `<MyModel>my text content</MyModel>`
 
         Args:
-            default (str): Default value for text content, used if no value is provided.
+            default (str | type[Enum]): Default value for text content, used if no value is provided.
             default_factory (function): Function that returns a default value for text content, used if no value is provided.
         """
 
-        pass
+        def __init__(self, default=None, default_factory=None) -> None:
+            super().__init__(default=default, default_factory=default_factory)
