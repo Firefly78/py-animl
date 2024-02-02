@@ -132,18 +132,17 @@ class XmlModel(metaclass=XmlMeta):
 
     @overload
     @classmethod
-    def _get_fields_(cls, mask: type[Field.Attribute] = None) -> list[Field.Attribute]:
-        ...
+    def _get_fields_(
+        cls, mask: type[Field.Attribute] = None
+    ) -> list[Field.Attribute]: ...
 
     @overload
     @classmethod
-    def _get_fields_(cls, mask: type[Field.Child] = None) -> list[Field.Child]:
-        ...
+    def _get_fields_(cls, mask: type[Field.Child] = None) -> list[Field.Child]: ...
 
     @overload
     @classmethod
-    def _get_fields_(cls, mask: type[Field.Text] = None) -> list[Field.Text]:
-        ...
+    def _get_fields_(cls, mask: type[Field.Text] = None) -> list[Field.Text]: ...
 
     @classmethod
     def _get_fields_(cls, mask=None):
@@ -170,9 +169,9 @@ class XmlModel(metaclass=XmlMeta):
     def _dump_xml_attributes_(self):
         """Helper function for dumping attributes to XML"""
         return {
-            field.alias
-            if field.alias is not None
-            else field.name: getattr(self, field.name)
+            field.alias if field.alias is not None else field.name: (
+                field.serialize(getattr(self, field.name))
+            )
             for field in type(self)._get_fields_(Field.Attribute)
             if getattr(self, field.name) is not None
         }
@@ -209,7 +208,7 @@ class XmlModel(metaclass=XmlMeta):
             text = None
 
         if text is not None:  # There is a text field
-            t = getattr(self, text.name)
+            t = text.serialize(getattr(self, text.name))
 
             # Check for None
             if t is None and not text.annotation.isOptional:
@@ -272,7 +271,8 @@ class XmlModel(metaclass=XmlMeta):
 
             if name not in x.attrib:
                 raise ValueError(f"Missing attribute '{name}'")
-            arguments[name] = x.attrib[name]
+
+            arguments[name] = attr.deserialize(x.attrib[name])
 
         return arguments
 
@@ -333,7 +333,7 @@ class XmlModel(metaclass=XmlMeta):
         if x.text is None and not txt.annotation.isOptional:
             raise ValueError(f"Missing required text field '{txt.name}'")
 
-        arguments[txt.name] = x.text
+        arguments[txt.name] = txt.deserialize(x.text)
 
         return arguments
 
