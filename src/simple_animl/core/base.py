@@ -128,7 +128,8 @@ class XmlModel(metaclass=XmlMeta):
 
             value = kwargs[key] if key in kwargs else i.get_default()
             i.annotation.check_type_ex(value, i.name)  # Type check
-            i.validate_ex(value)  # Field validation
+            if value is not None:  # None check is handled by .annotation.check_type_ex
+                i.validate_ex(value)  # Field validation
             setattr(self, i.name, value)
 
     @overload
