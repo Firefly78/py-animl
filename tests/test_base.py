@@ -1,5 +1,6 @@
 import unittest
 from typing import Optional
+from xml.etree import ElementTree
 from xml.etree.ElementTree import Element
 
 from simple_animl.core import Field, XmlModel
@@ -17,7 +18,7 @@ class TestAnnotation(unittest.TestCase):
 
 class TestFields(unittest.TestCase):
     def test_Create(self):
-        class Model_A(XmlModel):
+        class Model_A4(XmlModel):
             name: str = Field.Attribute(default="")
             name2: Optional[str] = Field.Attribute(alias="name-2")
             name3: str = Field.Attribute(default="my-name-3")
@@ -27,7 +28,7 @@ class TestFields(unittest.TestCase):
 
             more2: Optional[str] = Field.Text()
 
-        a = Model_A()
+        a = Model_A4()
 
         # No exception - pass
 
@@ -45,23 +46,62 @@ class TestClassFromTag(unittest.TestCase):
         )
 
     def test_GetClassFail_MultipleClass(self):
-        class T_MultiFailClass(XmlModel):
-            pass
+        def f():
+            class T_MultiFailClass(XmlModel):
+                pass
 
-        class T_MultiFailClass(XmlModel):
-            pass
+            class T_MultiFailClass(XmlModel):
+                pass
 
         self.assertRaisesRegex(
-            ValueError, "Multiple classes with tag", class_from_tag, "T_MultiFailClass"
+            ValueError, "Type 'T_MultiFailClass' already registered", f
         )
+
+
+class TestCustomSerializer(unittest.TestCase):
+    def test_DumpAttribute(self):
+        class BoolDumpTest(XmlModel):
+            value: bool = Field.Attribute(
+                on_serialize=lambda x: "true" if x else "false",
+            )
+
+        xml = BoolDumpTest(value=True).dump_xml()
+        self.assertEqual(xml.attrib["value"], "true")
+
+    def test_LoadAttribute(self):
+        xml = '<BoolLoadTest value="true" />'
+
+        class BoolLoadTest(XmlModel):
+            value: bool = Field.Attribute(
+                on_deserialize=lambda x: x == "true",
+            )
+
+        model = BoolLoadTest.load_xml(ElementTree.fromstring(xml))
+        self.assertEqual(model.value, True)
+
+    def test_DumpText(self):
+        class BoolDumpTest2(XmlModel):
+            value: str = Field.Text(on_serialize=lambda x: x + "-1")
+
+        xml = BoolDumpTest2(value="hello").dump_xml()
+        self.assertEqual(xml.text, "hello-1")
+
+    def test_LoadText(self):
+        xml = "<BoolLoadTest2>text</BoolLoadTest2>"
+
+        class BoolLoadTest2(XmlModel):
+            value: str = Field.Text(on_deserialize=lambda x: x + "-2")
+
+        model = BoolLoadTest2.load_xml(ElementTree.fromstring(xml))
+        self.assertEqual(model.value, "text-2")
 
 
 class TestDumpAttribute(unittest.TestCase):
     def test_Dump(self):
-        class Model_A(XmlModel):
+        class Model_AC(XmlModel):
             name: str = Field.Attribute()
 
-        xml = Model_A(name="my-name").dump_xml()
+        xml = Model_AC(name="my-name").dump_xml()
 
         self.assertTrue("name" in xml.attrib)
         self.assertEqual(xml.attrib["name"], "my-name")
@@ -75,7 +115,7 @@ class TestDumpChild(unittest.TestCase):
         class Model_C(XmlModel):
             name: str = Field.Attribute()
 
-        class Model_A(XmlModel):
+        class Model_A2(XmlModel):
             child: Model_B = Field.Child()
             child2: list[Model_C] = Field.Child(
                 default=[
@@ -84,7 +124,7 @@ class TestDumpChild(unittest.TestCase):
                 ]
             )
 
-        xml = Model_A(child=Model_B()).dump_xml()
+        xml = Model_A2(child=Model_B()).dump_xml()
 
         children = [x for x in xml]
         self.assertTrue(len(children) == 3)
@@ -97,10 +137,10 @@ class TestDumpChild(unittest.TestCase):
 
 class TestDumpText(unittest.TestCase):
     def test_Dump(self):
-        class Model_A(XmlModel):
+        class Model_A3(XmlModel):
             text: str = Field.Text()
 
-        xml = Model_A(text="my-content").dump_xml()
+        xml = Model_A3(text="my-content").dump_xml()
 
         self.assertEqual(xml.text, "my-content")
 
@@ -172,7 +212,7 @@ class TestTag(unittest.TestCase):
         self.assertEqual(TagModel().tag, "mytag")
 
     def test_DefaultTag(self):
-        class TagModel(XmlModel):
+        class TagModel_(XmlModel):
             pass
 
-        self.assertEqual(TagModel().tag, "TagModel")
+        self.assertEqual(TagModel_().tag, "TagModel_")

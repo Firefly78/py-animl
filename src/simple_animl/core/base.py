@@ -132,17 +132,18 @@ class XmlModel(metaclass=XmlMeta):
 
     @overload
     @classmethod
-    def _get_fields_(
-        cls, mask: type[Field.Attribute] = None
-    ) -> list[Field.Attribute]: ...
+    def _get_fields_(cls, mask: type[Field.Attribute] = None) -> list[Field.Attribute]:
+        ...
 
     @overload
     @classmethod
-    def _get_fields_(cls, mask: type[Field.Child] = None) -> list[Field.Child]: ...
+    def _get_fields_(cls, mask: type[Field.Child] = None) -> list[Field.Child]:
+        ...
 
     @overload
     @classmethod
-    def _get_fields_(cls, mask: type[Field.Text] = None) -> list[Field.Text]: ...
+    def _get_fields_(cls, mask: type[Field.Text] = None) -> list[Field.Text]:
+        ...
 
     @classmethod
     def _get_fields_(cls, mask=None):
@@ -169,9 +170,9 @@ class XmlModel(metaclass=XmlMeta):
     def _dump_xml_attributes_(self):
         """Helper function for dumping attributes to XML"""
         return {
-            field.alias if field.alias is not None else field.name: (
-                field.serialize(getattr(self, field.name))
-            )
+            field.alias
+            if field.alias is not None
+            else field.name: (field.serialize(getattr(self, field.name)))
             for field in type(self)._get_fields_(Field.Attribute)
             if getattr(self, field.name) is not None
         }
