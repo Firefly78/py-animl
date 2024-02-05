@@ -1,7 +1,10 @@
 import unittest
+import xml.etree.ElementTree as etree
+from enum import Enum
 
 from simple_animl.core.base import XmlModel
 from simple_animl.core.fields import Field
+from simple_animl.utils.regex import NC_NAME
 
 
 class TestAttribute(unittest.TestCase):
@@ -26,6 +29,49 @@ class TestAttribute(unittest.TestCase):
                 field = Field.Attribute(**test[0])
                 self.assertEqual(field.has_default(), test[1] is not None)
                 self.assertEqual(field.get_default(), test[1])
+
+    def test_Validate_Dump(self):
+        class A_ValidateDump(XmlModel):
+            value: str = Field.Attribute(regex=NC_NAME)
+
+        # OK
+        A_ValidateDump(value="good-value").dump_xml()
+        # Bad
+        self.assertRaisesRegex(
+            ValueError,
+            "value must match regex",
+            lambda: A_ValidateDump(value="0bad-value").dump_xml(),
+        )
+
+    def test_Validate_Init(self):
+        class A_ValidateInit(XmlModel):
+            value: str = Field.Attribute(regex=NC_NAME)
+
+        # OK
+        A_ValidateInit(value="good-value")
+        # Bad
+        self.assertRaisesRegex(
+            ValueError,
+            "value must match regex",
+            lambda: A_ValidateInit(value="0bad-value"),
+        )
+
+    def test_Validate_Load(self):
+        class A_ValidateLoad(XmlModel):
+            value: str = Field.Attribute(regex=NC_NAME)
+
+        # OK
+        A_ValidateLoad.load_xml(
+            etree.fromstring("<A_ValidateLoad value='good-value' />")
+        )
+        # Bad
+        self.assertRaisesRegex(
+            ValueError,
+            "value must match regex",
+            lambda: A_ValidateLoad.load_xml(
+                etree.fromstring("<A_ValidateLoad value='0bad-value' />")
+            ),
+        )
 
 
 class TestBase(unittest.TestCase):
@@ -61,3 +107,101 @@ class TestText(unittest.TestCase):
                 field = Field.Text(**test[0])
                 self.assertEqual(field.has_default(), test[1] is not None)
                 self.assertEqual(field.get_default(), test[1])
+
+    def test_Enum_Deserialize(self):
+        class MyEnumED(str, Enum):
+            VALUE1 = "this-is-my-text"
+
+        XmlModel.register_type(MyEnumED)
+
+        class B(XmlModel):
+            value: MyEnumED = Field.Text()
+
+        xml_string = "<B>this-is-my-text</B>"
+        root = etree.fromstring(xml_string)
+        b = B.load_xml(root)
+        self.assertEqual(b.value, MyEnumED.VALUE1)
+
+    def test_Enum_DeserializeEx(self):
+        class MyEnumEDE(str, Enum):
+            VALUE1 = "this-is-my-text"
+
+        XmlModel.register_type(MyEnumEDE)
+
+        class B2(XmlModel):
+            value: MyEnumEDE = Field.Text()
+
+        xml_string = "<B2>bad-string</B2>"
+        root = etree.fromstring(xml_string)
+        self.assertRaisesRegex(ValueError, "bad-string", lambda: B2.load_xml(root))
+
+    def test_Enum_Serialize(self):
+        class MyEnumES(str, Enum):
+            VALUE1 = "this-is-my-text"
+
+        XmlModel.register_type(MyEnumES)
+
+        class ES(XmlModel):
+            value: MyEnumES = Field.Text()  # Use enum as field
+
+        m = ES(value=MyEnumES.VALUE1)
+
+        xml = m.dump_xml()
+
+        self.assertEqual(xml.text, MyEnumES.VALUE1.value)
+
+    def test_Enum_SerializeEx(self):
+        class MyEnumESE(Enum):
+            VALUE1 = "this-is-my-text"
+
+        XmlModel.register_type(MyEnumESE)
+
+        class ESE(XmlModel):
+            value: MyEnumESE = Field.Text()  # Use enum as field
+
+        m = ESE(value=MyEnumESE.VALUE1)
+
+        self.assertRaisesRegex(TypeError, "type must be string", lambda: m.dump_xml())
+
+    def test_Validate_Dump(self):
+        class A_ValidateTDump(XmlModel):
+            value: str = Field.Text(regex=NC_NAME)
+
+        # OK
+        A_ValidateTDump(value="good-value").dump_xml()
+        # Bad
+        self.assertRaisesRegex(
+            ValueError,
+            "value must match regex",
+            lambda: A_ValidateTDump(value="0bad-value").dump_xml(),
+        )
+
+    def test_Validate_Init(self):
+        class A_ValidateTInit(XmlModel):
+            value: str = Field.Text(regex=NC_NAME)
+
+        # OK
+        A_ValidateTInit(value="good-value")
+        # Bad
+        self.assertRaisesRegex(
+            ValueError,
+            "value must match regex",
+            lambda: A_ValidateTInit(value="0bad-value"),
+        )
+
+    def test_Validate_Load(self):
+        class A_ValidateTLoad(XmlModel):
+            value: str = Field.Text(regex=NC_NAME)
+
+        # OK
+        A_ValidateTLoad.load_xml(
+            etree.fromstring("<A_ValidateTLoad>good-value</A_ValidateTLoad>")
+        )
+        # Bad
+        self.assertRaisesRegex(
+            ValueError,
+            "value must match regex",
+            lambda: A_ValidateTLoad.load_xml(
+                etree.fromstring("<A_ValidateTLoad>0bad-value</A_ValidateTLoad>")
+            ),
+        )

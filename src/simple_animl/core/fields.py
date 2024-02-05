@@ -1,3 +1,4 @@
+import re
 from typing import Any, Union, _SpecialForm
 
 from .annotations import Annotation
@@ -26,6 +27,7 @@ class Field:
             default_factory=None,
             on_serialize=None,
             on_deserialize=None,
+            regex=None,
         ) -> None:
             if type(self) is Field.Base:
                 raise ("Field.Base cannot be directly instantiated")
@@ -33,6 +35,7 @@ class Field:
             self.default_factory = default_factory
             self.on_serialize = on_serialize
             self.on_deserialize = on_deserialize
+            self.regex = regex
 
             self.annotation: Annotation = None
             self.name: str = None
@@ -58,6 +61,17 @@ class Field:
                 return self.on_serialize(value)
             return value
 
+        def validate_ex(self, value: Any) -> Any:
+            # Regex
+            if self.regex is not None:
+                if not re.match(self.regex, value):
+                    raise ValueError(f"{self.name} must match regex {self.regex}")
+
+            # Add more checks here...
+
+            # Return value if all is good
+            return value
+
     class Attribute(Base):
         """Attribute-Field class. Used to define attributes in XmlModel.
 
@@ -74,6 +88,7 @@ class Field:
             default_factory (function): Function that returns a default value for attribute, used if no value is provided.
             on_serialize (function): Function that is called when serializing the attribute to xml.
             on_deserialize (function): Function that is called when deserializing the attribute from xml.
+            regex (str): Regular expression that the attribute must match.
         """
 
         def __init__(self, *, alias: str = None, **kwargs) -> None:
@@ -115,6 +130,7 @@ class Field:
             default_factory (function): Function that returns a default value for text content, used if no value is provided.
             on_serialize (function): Function that is called when serializing the attribute to xml.
             on_deserialize (function): Function that is called when deserializing the attribute from xml.
+            regex (str): Regular expression that the text must match.
         """
 
         def __init__(self, **kwargs) -> None:

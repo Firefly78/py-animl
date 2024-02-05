@@ -128,6 +128,7 @@ class XmlModel(metaclass=XmlMeta):
 
             value = kwargs[key] if key in kwargs else i.get_default()
             i.annotation.check_type_ex(value, i.name)  # Type check
+            i.validate_ex(value)  # Field validation
             setattr(self, i.name, value)
 
     @overload
@@ -172,7 +173,9 @@ class XmlModel(metaclass=XmlMeta):
         return {
             field.alias
             if field.alias is not None
-            else field.name: (field.serialize(getattr(self, field.name)))
+            else field.name: (
+                field.validate_ex(field.serialize(getattr(self, field.name)))
+            )
             for field in type(self)._get_fields_(Field.Attribute)
             if getattr(self, field.name) is not None
         }
@@ -183,7 +186,7 @@ class XmlModel(metaclass=XmlMeta):
 
         for field in type(self)._get_fields_(Field.Child):
             try:
-                model = getattr(self, field.name)
+                model = field.validate_ex(getattr(self, field.name))
             except AttributeError:
                 continue
             if model is None:
@@ -209,7 +212,7 @@ class XmlModel(metaclass=XmlMeta):
             text = None
 
         if text is not None:  # There is a text field
-            t = text.serialize(getattr(self, text.name))
+            t = text.validate_ex(text.serialize(getattr(self, text.name)))
 
             # Check for None
             if t is None and not text.annotation.isOptional:
@@ -273,7 +276,7 @@ class XmlModel(metaclass=XmlMeta):
             if name not in x.attrib:
                 raise ValueError(f"Missing attribute '{name}'")
 
-            arguments[name] = attr.deserialize(x.attrib[name])
+            arguments[name] = attr.validate_ex(attr.deserialize(x.attrib[name]))
 
         return arguments
 
@@ -334,7 +337,7 @@ class XmlModel(metaclass=XmlMeta):
         if x.text is None and not txt.annotation.isOptional:
             raise ValueError(f"Missing required text field '{txt.name}'")
 
-        arguments[txt.name] = txt.deserialize(x.text)
+        arguments[txt.name] = txt.validate_ex(txt.deserialize(x.text))
 
         return arguments
 
