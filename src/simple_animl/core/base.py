@@ -216,7 +216,9 @@ class XmlModel(metaclass=XmlMeta):
             t = text.validate_ex(text.serialize(getattr(self, text.name)))
 
             # Check for None
-            if t is None and not text.annotation.isOptional:
+            if t is None:
+                if text.annotation.isOptional:  # Optional field
+                    return None
                 raise Exception(f"Text field '{text.name}' is missing")
 
             # Check type
