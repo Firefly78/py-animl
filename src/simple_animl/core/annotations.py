@@ -8,7 +8,7 @@ from typing import Any, Type, Union, _GenericAlias, _SpecialForm, _UnionGenericA
 
 @dataclass
 class Annotation:
-    _type: str
+    _type: Union[str, type]
     isOptional: bool
     isList: bool
     # TODO: Make class support more complex annotations
@@ -23,6 +23,7 @@ class Annotation:
                 raise ValueError(f"Field '{name}' is not optional")
 
         def get_types():
+            yield None if isinstance(self._type, str) else self._type
             yield locate(self._type)  # Use for built in types
             yield type(self).get_type_from_string(self._type)
             raise TypeError(f"Type '{self._type}' not found")
@@ -124,7 +125,7 @@ class TypeAnnotation(BaseAnnotation):
             ret.isList |= isList
             return ret
         else:
-            return Annotation(str(annotation.__name__), False, False)
+            return Annotation(annotation, False, False)
 
 
 class TypingAnnotation(BaseAnnotation):

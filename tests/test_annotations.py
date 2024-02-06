@@ -30,9 +30,9 @@ class TestGeneral(unittest.TestCase):
 class TestPythonTypes(unittest.TestCase):
     def test_TypesOK(self):
         tests = [
-            (str, "str"),
-            (A, "A"),
-            (list[str], "str"),
+            (str, str),
+            (A, A),
+            (list[str], str),
         ]
 
         for test in tests:
@@ -42,7 +42,7 @@ class TestPythonTypes(unittest.TestCase):
 
     def test_isList(self):
         ann = Annotation.parse(list[A])
-        self.assertEqual(ann._type, "A")
+        self.assertEqual(ann._type, A)
         self.assertTrue(ann.isList)
         self.assertFalse(ann.isOptional)
 
@@ -84,9 +84,9 @@ class TestStringTypes(unittest.TestCase):
 class TestTypingLibTypes(unittest.TestCase):
     def test_TypesOK(self):
         tests = [
-            (Optional[str], "str"),
-            (List[Optional[str]], "str"),
-            (Optional[List[A]], "A"),
+            (Optional[str], str),
+            (List[Optional[str]], str),
+            (Optional[List[A]], A),
         ]
 
         for test in tests:
@@ -96,19 +96,19 @@ class TestTypingLibTypes(unittest.TestCase):
 
     def test_isList(self):
         ann = Annotation.parse(List[A])
-        self.assertEqual(ann._type, "A")
+        self.assertEqual(ann._type, A)
         self.assertTrue(ann.isList)
         self.assertFalse(ann.isOptional)
 
     def test_isOptional(self):
         ann = Annotation.parse(Optional[A])
-        self.assertEqual(ann._type, "A")
+        self.assertEqual(ann._type, A)
         self.assertFalse(ann.isList)
         self.assertTrue(ann.isOptional)
 
     def test_isOptionalList(self):
         ann = Annotation.parse(Optional[List[A]])
-        self.assertEqual(ann._type, "A")
+        self.assertEqual(ann._type, A)
         self.assertTrue(ann.isList)
         self.assertTrue(ann.isOptional)
 
