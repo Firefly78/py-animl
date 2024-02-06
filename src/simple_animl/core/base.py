@@ -296,15 +296,10 @@ class XmlModel(metaclass=XmlMeta):
         child_fields = cls._get_fields_(Field.Child)
         for child in x:
             # Create child instance from xml
-            child_instance = class_from_tag(child.tag).load_xml(child)
+            child_inst = class_from_tag(child.tag).load_xml(child)
 
-            # Find someplace to store it...
-            a: list[Field.Child] = list(
-                filter(
-                    lambda x: x.annotation._type == child_instance.__class__.__name__,
-                    child_fields,
-                )
-            )
+            # Find a field that matches the child
+            a = [x for x in child_fields if x.annotation.validtype(type(child_inst))]
 
             if len(a) == 0:
                 raise ValueError(f"Unable to find field for child '{child.tag}'")
@@ -315,9 +310,9 @@ class XmlModel(metaclass=XmlMeta):
             if child_field.annotation.isList:
                 if child_field.name not in arguments:  # No list found
                     arguments[child_field.name] = list()
-                arguments[child_field.name].append(child_instance)
+                arguments[child_field.name].append(child_inst)
             else:
-                arguments[child_field.name] = child_instance
+                arguments[child_field.name] = child_inst
 
         return arguments
 

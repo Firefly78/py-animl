@@ -46,6 +46,10 @@ class Annotation:
                 f"Type mismatch. Expected: '{self._type}', got: '{type(value).__name__}'"
             )
 
+    def validtype(self, type: Type):
+        """Check if provided type is valid for this annotation"""
+        return self._type == type or self._type == type.__name__
+
     @classmethod
     def parse(cls, annotation: Any) -> Annotation:
         """Create Annotation object from any type hint"""
