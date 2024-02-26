@@ -297,7 +297,7 @@ class XmlModel(metaclass=XmlMeta):
             child_inst = class_from_tag(child.tag).load_xml(child)
 
             # Find a field that matches the child
-            a = [x for x in child_fields if x.annotation.validtype(type(child_inst))]
+            a = [x for x in child_fields if x.annotation.validcontent(type(child_inst))]
 
             if len(a) == 0:
                 raise ValueError(f"Unable to find field for child '{child.tag}'")
