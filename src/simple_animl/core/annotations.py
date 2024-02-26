@@ -5,33 +5,54 @@ from dataclasses import dataclass
 from pydoc import locate
 from typing import Any, Type, Union, _GenericAlias, _SpecialForm, _UnionGenericAlias
 
+NoneType = type(None)
+
 
 @dataclass
 class Annotation:
-    _type: Union[str, type]
-    isOptional: bool
-    isList: bool
-    # TODO: Make class support more complex annotations
+    tType: Union[str, type, None]
+    subType: tuple[Union[Annotation, None], ...] = tuple()
+
+    @property
+    def isList(self):
+        return self.validtype(list)
+
+    def isOptional(self):
+        return self.tType == Union and NoneType in self.subType
 
     __registered_types__ = {}
 
+    def all_types(self):
+        if self.tType == Union:
+            re = []
+            for t in self.subType:
+                re.extend(t.all_types())
+            return re
+        return [self.tType]
+
     def check_type_ex(self, value: Any, name: str):
+        if value is None and not self.isOptional:
+            raise ValueError(f"Field '{name}' is not optional")
         if value is None:
-            if self.isOptional:
-                return
-            else:
-                raise ValueError(f"Field '{name}' is not optional")
+            return  # No value is ok
 
         def get_types():
-            yield None if isinstance(self._type, str) else self._type
-            yield locate(self._type)  # Use for built in types
-            yield type(self).get_type_from_string(self._type)
-            raise TypeError(f"Type '{self._type}' not found")
+            all_types = self.all_types()
+            for t in all_types:
+                yield None if isinstance(t, str) else t  # Not string
+            for t in all_types:
+                yield type(self).get_type_from_string(t)
+            for t in all_types:
+                yield locate(t)  # Use for built in types
+            # raise TypeError(f"Type '{self.tType}' not found")
+
+        # self can be a range of types
+        # Need check if any can be created from the value
 
         for t in get_types():
             if t is None:
                 continue
-            if isinstance(value, t):
+            if isinstance(value, t):  # Matching type
                 return
             if isinstance(value, list) and self.isList:
                 return
@@ -42,13 +63,30 @@ class Annotation:
                 raise
             except Exception as ex:
                 pass
-            raise TypeError(
-                f"Type mismatch. Expected: '{self._type}', got: '{type(value).__name__}'"
-            )
+
+        raise TypeError(
+            f"Type mismatch. Expected: '{self.tType}', got: '{type(value).__name__}'"
+        )
+
+    def validsubtype(self, type: Type):
+        """Check if provided type is a valid subtype for this annotation, special case for List types"""
+        if self.tType == Union and self.validtype(NoneType):
+            return any([t.validsubtype(type) for t in self.subType])
+        if self.tType == list:
+            return any([t.validtype(type) for t in self.subType])
+        return self.validtype(type)
 
     def validtype(self, type: Type):
         """Check if provided type is valid for this annotation"""
-        return self._type == type or self._type == type.__name__
+        if type is None:
+            type = NoneType
+        if self.tType == Union:
+            return any([t.validtype(type) for t in self.subType])
+        return self.tType == type or self.tType == type.__name__
+
+    def validcontent(self, type: Type):
+        """Check if provided type is valid for this annotation, including subtypes of a list"""
+        return self.validtype(type) or (self.isList and self.validsubtype(type))
 
     @classmethod
     def parse(cls, annotation: Any) -> Annotation:
@@ -96,40 +134,32 @@ class StringAnnotation(BaseAnnotation):
         """Parse a type-hint of type 'str'"""
         if not isinstance(annotation, str):
             raise TypeError(f"Parameter 'annotation': '{type(annotation)}'")
-        isOptional = False
-        isList = False
         if annotation.lower().startswith("optional["):
-            isOptional = True
             annotation = annotation[9:-1]
-            ret = Annotation.parse(annotation)
-            ret.isList |= isList
-            ret.isOptional |= isOptional
-            return ret
+            return Annotation(
+                Union, (Annotation.parse(annotation), Annotation(NoneType))
+            )
         elif annotation.lower().startswith("list["):
-            isList = True
             annotation = annotation[5:-1]
-            ret = Annotation.parse(annotation)
-            ret.isList |= isList
-            ret.isOptional |= isOptional
-            return ret
+            return Annotation(list, (Annotation.parse(annotation),))
+        elif annotation.lower().startswith("union["):
+            annotation = annotation[6:-1]
+            types = annotation.split(", ")
+            return Annotation(Union, tuple(map(Annotation.parse, types)))
         elif not re.match(r"^[a-zA-Z0-9_]+$", annotation):  # Not a valid type name
             raise SyntaxError(f"Invalid type syntax: '{annotation}'")
-
-        return Annotation(annotation, False, False)
+        else:
+            return Annotation(annotation)
 
 
 class TypeAnnotation(BaseAnnotation):
     @classmethod
     def parse(cls, annotation: type) -> Annotation:
         """Parse a type-hint of python standard type"""
-        isList = False
         if hasattr(annotation, "__origin__") and annotation.__origin__ == list:
-            isList = True
-            ret = Annotation.parse(annotation.__args__[0])
-            ret.isList |= isList
-            return ret
+            return Annotation(list, (Annotation.parse(annotation.__args__[0]),))
         else:
-            return Annotation(annotation, False, False)
+            return Annotation(annotation)
 
 
 class TypingAnnotation(BaseAnnotation):
@@ -140,25 +170,15 @@ class TypingAnnotation(BaseAnnotation):
             raise TypeError(
                 f"Type from module '{annotation.__module__}', expected to be from 'typing'"
             )
-        isOptional = False
-        isList = False
+
         if isinstance(annotation, _UnionGenericAlias):  # Union or Optional
-            # Optional
-            if len(annotation.__args__) == 2 and annotation.__args__[1] == type(None):
-                annotation = annotation.__args__[0]
-                isOptional = True
-            else:
-                raise TypeError(f"Unsupported typing type: '{str(annotation)}'")
+            return Annotation(
+                Union,
+                tuple(map(Annotation.parse, annotation.__args__)),
+            )
 
         elif isinstance(annotation, _GenericAlias):  # Other type
             if annotation._name == "List":  # List
-                annotation = annotation.__args__[0]
-                isList = True
-            else:
-                raise TypeError(f"Unsupported typing type: '{str(annotation)}'")
-        else:
-            raise TypeError(f"Unsupported typing type: '{str(annotation)}'")
-        ret = Annotation.parse(annotation)
-        ret.isOptional |= isOptional
-        ret.isList |= isList
-        return ret
+                return Annotation(list, (Annotation.parse(annotation.__args__[0]),))
+
+        raise TypeError(f"Unsupported typing type: '{str(annotation)}'")

@@ -1,5 +1,6 @@
 import unittest
-from typing import List, Optional, Set
+import xml.etree.ElementTree as etree
+from typing import List, Optional, Set, Union
 
 from simple_animl.core import Field, XmlModel
 from simple_animl.core.annotations import Annotation
@@ -24,7 +25,7 @@ class TestGeneral(unittest.TestCase):
             name: A = Field.Attribute()
 
         self.assertEqual(Model_A._fields[0].name, "name")
-        self.assertEqual(Model_A._fields[0].annotation._type, A)
+        self.assertEqual(Model_A._fields[0].annotation.tType, A)
 
 
 class TestPythonTypes(unittest.TestCase):
@@ -32,19 +33,19 @@ class TestPythonTypes(unittest.TestCase):
         tests = [
             (str, str),
             (A, A),
-            (list[str], str),
+            (list[str], list),
         ]
 
         for test in tests:
             with self.subTest(test=f"{'Annotation'}: '{test[0]}'"):
                 ann = Annotation.parse(test[0])
-                self.assertEqual(test[1], ann._type)
+                self.assertTrue(ann.validtype(test[1]))
+                self.assertEqual(test[1], ann.tType)
 
     def test_isList(self):
         ann = Annotation.parse(list[A])
-        self.assertEqual(ann._type, A)
-        self.assertTrue(ann.isList)
-        self.assertFalse(ann.isOptional)
+        self.assertEqual(ann.tType, list)
+        self.assertTrue(any([x.validtype(A) for x in ann.subType]))
 
 
 class TestStringTypes(unittest.TestCase):
@@ -52,19 +53,25 @@ class TestStringTypes(unittest.TestCase):
         tests = [
             ("str", "str"),
             ("anything_", "anything_"),
-            ("list[str]", "str"),
         ]
 
         for test in tests:
             with self.subTest(test=f"{'Annotation'}: '{test[0]}'"):
                 ann = Annotation.parse(test[0])
-                self.assertEqual(test[1], ann._type)
+                self.assertEqual(test[1], ann.tType)
+                self.assertTrue(ann.validtype(test[1]))
 
     def test_isList(self):
         ann = Annotation.parse("list[A]")
-        self.assertEqual(ann._type, "A")
-        self.assertTrue(ann.isList)
-        self.assertFalse(ann.isOptional)
+        self.assertEqual(ann.tType, list)
+        self.assertTrue(ann.validsubtype(A))
+        self.assertFalse(ann.validtype(None))
+
+    def test_isOptional(self):
+        ann = Annotation.parse("Optional[A]")
+        self.assertEqual(ann.tType, Union)
+        self.assertTrue(ann.validtype(A))
+        self.assertTrue(ann.validtype(None))
 
     def test_SyntaxCheck(self):
         # Make sure correct error is raised
@@ -82,37 +89,69 @@ class TestStringTypes(unittest.TestCase):
 
 
 class TestTypingLibTypes(unittest.TestCase):
-    def test_TypesOK(self):
-        tests = [
-            (Optional[str], str),
-            (List[Optional[str]], str),
-            (Optional[List[A]], A),
-        ]
-
-        for test in tests:
-            with self.subTest(test=f"{'Annotation'}: '{test[0]}'"):
-                ann = Annotation.parse(test[0])
-                self.assertEqual(test[1], ann._type)
-
     def test_isList(self):
         ann = Annotation.parse(List[A])
-        self.assertEqual(ann._type, A)
-        self.assertTrue(ann.isList)
-        self.assertFalse(ann.isOptional)
+        self.assertEqual(ann.tType, list)
+        self.assertTrue(ann.validsubtype(A))
+        self.assertFalse(ann.validsubtype(None))
+
+    def test_isListOptional(self):
+        ann = Annotation.parse(List[Optional[A]])
+        self.assertEqual(ann.tType, list)
+        self.assertTrue(ann.validsubtype(A))
+        self.assertTrue(ann.validsubtype(None))
 
     def test_isOptional(self):
         ann = Annotation.parse(Optional[A])
-        self.assertEqual(ann._type, A)
-        self.assertFalse(ann.isList)
-        self.assertTrue(ann.isOptional)
+        self.assertEqual(ann.tType, Union)
+        self.assertTrue(ann.validtype(A))
 
     def test_isOptionalList(self):
         ann = Annotation.parse(Optional[List[A]])
-        self.assertEqual(ann._type, A)
-        self.assertTrue(ann.isList)
-        self.assertTrue(ann.isOptional)
+        self.assertEqual(ann.tType, Union)
+        self.assertTrue(ann.validtype(list))
+        self.assertTrue(ann.validtype(None))
+        self.assertTrue(ann.subType[0].validsubtype(A))
 
     def test_UnsupportedTypes(self):
         # Make sure correct error is raised
         f1 = lambda: Annotation.parse(Set[A])
         self.assertRaisesRegex(TypeError, "Unsupported typing type:", f1)
+
+
+class TestUnionTypes(unittest.TestCase):
+    def test_Model(self):
+        class TestUnionTypesA(XmlModel):
+            pass
+
+        class TestUnionTypesB(XmlModel):
+            pass
+
+        class TestUnionTypesC(XmlModel):
+            pass
+
+        class UnionModel(XmlModel):
+            child_either_A_or_B: Union[
+                TestUnionTypesA, TestUnionTypesB, TestUnionTypesC
+            ] = Field.Child()
+
+        self.assertEqual(UnionModel._fields[0].name, "child_either_A_or_B")
+        self.assertTrue(UnionModel._fields[0].annotation.validtype(TestUnionTypesA))
+        self.assertTrue(UnionModel._fields[0].annotation.validtype(TestUnionTypesB))
+        self.assertTrue(UnionModel._fields[0].annotation.validtype(TestUnionTypesC))
+
+    def test_Load(self):
+        class TestUnionTypesD(XmlModel):
+            tag = "DD"
+
+        class TestUnionTypesE(XmlModel):
+            tag = "EE"
+
+        class TestUnionLoadModel(XmlModel):
+            child: Union[TestUnionTypesD, TestUnionTypesE] = Field.Child()
+
+        xml1 = "<TestUnionLoadModel><DD/></TestUnionLoadModel>"
+        TestUnionLoadModel.load_xml(etree.fromstring(xml1))
+
+        xml2 = "<TestUnionLoadModel><EE/></TestUnionLoadModel>"
+        TestUnionLoadModel.load_xml(etree.fromstring(xml2))
