@@ -97,6 +97,9 @@ class Field:
             super().__init__(**kwargs)
             self.alias = alias
 
+        def get_name(self):
+            return self.alias if self.alias is not None else self.name
+
     class Child(Base):
         """Child-Field class. Used to define xml child elements in XmlModel.
 

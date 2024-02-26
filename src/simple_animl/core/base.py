@@ -172,9 +172,7 @@ class XmlModel(metaclass=XmlMeta):
     def _dump_xml_attributes_(self):
         """Helper function for dumping attributes to XML"""
         return {
-            field.alias
-            if field.alias is not None
-            else field.name: (
+            field.get_name(): (
                 field.validate_ex(field.serialize(getattr(self, field.name)))
             )
             for field in type(self)._get_fields_(Field.Attribute)
