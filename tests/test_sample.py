@@ -80,3 +80,9 @@ class TestSample(unittest.TestCase):
         self.assertEqual(samples[0].sampleID, "1")
         self.assertEqual(samples[1].sampleID, "2")
         self.assertEqual(samples[2].sampleID, "3")
+
+    def testLoadSample(self):
+        txt = """<Sample name="Sample 1" sampleID="1"/>"""
+        sample = Sample.load_xml(ElementTree.fromstring(txt))
+        self.assertEqual(sample.name, "Sample 1")
+        self.assertEqual(sample.sampleID, "1")

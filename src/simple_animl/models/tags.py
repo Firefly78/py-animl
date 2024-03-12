@@ -9,14 +9,14 @@ class Tag(XmlModel):
     """
     Tag to mark related data items. When a value is given, it may also serve as a reference to an external data system.
 
-    Args:
+    Attributes:
         name (str): Token with up to 1024 characters
-        value (str): Token with up to 1024 characters
+        value (str): String with up to 1024 characters
 
     """
 
     name: str = Field.Attribute()
-    value: str = Field.Attribute()
+    value: Optional[str] = Field.Attribute()
 
 
 class TagSet(XmlModel):

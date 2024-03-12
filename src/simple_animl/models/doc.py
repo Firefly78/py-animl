@@ -14,7 +14,20 @@ XSI_SCHEMALOCATION: str = "urn:org:astm:animl:schema:core:draft:0.90 http://sche
 
 
 class AnIMLDoc(XmlModel):
-    """Root Element for AnIML documents."""
+    """
+    Root Element for AnIML documents.
+
+    Attributes:
+        version (str): Version of AnIML
+        xmlns (str): XML namespace
+        xmlns_xsi (str): XML namespace for schema instance
+        xsi_schemalocation (str): Schema location
+
+    Children:
+        sample_set (SampleSet): Collection of Samples
+        TODO: Add more children
+
+    """
 
     tag = "AnIML"  # Override name to use during serialization
 
