@@ -299,10 +299,15 @@ class XmlModel(metaclass=XmlMeta):
             # Find a field that matches the child
             a = [x for x in child_fields if x.annotation.validcontent(type(child_inst))]
 
+            if len(a) > 1:
+                # Check if any but the last is lists -> error
+                if any([x.annotation.isList for x in a[:-1]]):
+                    raise ValueError(f"Unreachable field found for child '{child.tag}'")
+                # Check which ones are occupied (in arguments), and filter a
+                a = [x for x in a if x.name not in arguments]
             if len(a) == 0:
                 raise ValueError(f"Unable to find field for child '{child.tag}'")
-            if len(a) > 1:
-                raise ValueError(f"Multiple fields for child '{child.tag}'")
+
             child_field = a[0]
 
             if child_field.annotation.isList:
