@@ -5,6 +5,7 @@ from typing import IO, Optional, Union
 from xml.etree.ElementTree import ElementTree
 
 from ..core import Field, XmlModel
+from .base import AnIMLDocBase
 from .sample import SampleSet
 
 VERSION: str = "0.90"
@@ -13,7 +14,7 @@ XMLNS_XSI: str = "http://www.w3.org/2001/XMLSchema-instance"
 XSI_SCHEMALOCATION: str = "urn:org:astm:animl:schema:core:draft:0.90 http://schemas.animl.org/current/animl-core.xsd"
 
 
-class AnIMLDoc(XmlModel):
+class AnIMLDoc(XmlModel, regclass=AnIMLDocBase):
     """
     Root Element for AnIML documents.
 

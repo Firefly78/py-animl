@@ -4,6 +4,7 @@ from typing import Optional
 
 from ..core import Field, XmlModel
 from ..utils.regex import NC_NAME
+from .base import AnIMLDocBase
 from .category import Category
 from .tags import TagSet
 
@@ -14,7 +15,7 @@ SERIALIZE_BOOL = {
 }
 
 
-class Sample(XmlModel):
+class Sample(XmlModel, regclass=AnIMLDocBase):
     """
     Individual Sample, referenced from other parts of this AnIML document.
 
@@ -66,7 +67,7 @@ class Sample(XmlModel):
     category: Optional[Category] = Field.Child()
 
 
-class SampleSet(XmlModel):
+class SampleSet(XmlModel, regclass=AnIMLDocBase):
     """
     Container for Samples used in this AnIML document.
     

@@ -3,11 +3,12 @@ from __future__ import annotations
 from typing import Optional
 
 from ..core import Field, XmlModel
+from .base import AnIMLDocBase
 from .parameter import Parameter
 from .series import SeriesSet
 
 
-class Category(XmlModel):
+class Category(XmlModel, regclass=AnIMLDocBase):
     """
     Defines a category of Parameters and SeriesSets. Used to model hierarchies.
 
