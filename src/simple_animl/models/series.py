@@ -3,6 +3,7 @@ from typing import List, Optional, Union
 
 from ..core import Field, XmlModel
 from ..utils.regex import NC_NAME
+from .base import AnIMLDocBase
 from .data_type import SERIALIZE_BOOL, SERIALIZE_INT
 from .parameter import ParameterTypes
 from .unit import Unit
@@ -21,7 +22,7 @@ class PlotScale(str, Enum):
     none = "none"
 
 
-class Series(XmlModel):
+class Series(XmlModel, regclass=AnIMLDocBase):
     """Container for multiple Values.
 
     Attributes:
@@ -52,7 +53,7 @@ class Series(XmlModel):
     unit: Optional[Unit] = Field.Child()
 
 
-class SeriesSet(XmlModel):
+class SeriesSet(XmlModel, regclass=AnIMLDocBase):
     """Container for n-dimensional Data.
 
     Attributes:

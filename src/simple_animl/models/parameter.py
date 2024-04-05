@@ -5,6 +5,7 @@ from typing import Optional, Union
 
 from ..core import Field, XmlModel
 from ..utils.regex import NC_NAME
+from .base import AnIMLDocBase
 from .data_type import (
     BooleanType,
     DateTimeType,
@@ -33,7 +34,7 @@ class ParameterTypes(str, Enum):
     SVG = "SVG"
 
 
-class Parameter(XmlModel):
+class Parameter(XmlModel, regclass=AnIMLDocBase):
     """
     Name/Value Pair.
     

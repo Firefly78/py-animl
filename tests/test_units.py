@@ -4,6 +4,7 @@ from xml.etree import ElementTree
 
 from simple_animl.core import XmlModel
 from simple_animl.core.annotations import Annotation
+from simple_animl.models.base import AnIMLDocBase
 from simple_animl.models.unit import SIUnit, Unit, UnitText
 
 
@@ -105,4 +106,4 @@ class TestUnitText(unittest.TestCase):
         self.assertTrue(issubclass(UnitText, str))
 
     def test_Register(self):
-        self.assertIn(UnitText, Annotation.get_registered_types())
+        self.assertIn(UnitText, AnIMLDocBase.get_registered_types().values())

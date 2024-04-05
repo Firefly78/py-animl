@@ -1,9 +1,10 @@
 from ctypes import c_float, c_int32, c_int64
 from datetime import datetime
-from typing import Optional, Union
+from typing import Optional
 
 from ..core.base import XmlModel
 from ..core.fields import Field
+from .base import AnIMLDocBase
 
 SERIALIZE_BINARY = {
     "on_serialize": lambda x: x.decode("ascii") if x else None,
@@ -43,13 +44,13 @@ SERIALIZE_LONG = {
 }
 
 
-class BooleanType(XmlModel):
+class BooleanType(XmlModel, regclass=AnIMLDocBase):
     tag: str = "Boolean"
 
     value: bool = Field.Text(**SERIALIZE_BOOL)
 
 
-class DoubleType(XmlModel):
+class DoubleType(XmlModel, regclass=AnIMLDocBase):
     """Individual 64-bit floating point value."""
 
     tag: str = "D"
@@ -57,19 +58,19 @@ class DoubleType(XmlModel):
     value: float = Field.Text(**SERIALIZE_DOUBLE)
 
 
-class DateTimeType(XmlModel):
+class DateTimeType(XmlModel, regclass=AnIMLDocBase):
     tag: str = "DateTime"
 
     value: datetime = Field.Text(**SERIALIZE_DATETIME)
 
 
-class EmbeddedXmlType(XmlModel):
+class EmbeddedXmlType(XmlModel, regclass=AnIMLDocBase):
     tag: str = "EmbeddedXML"
 
     value: Optional[str] = Field.Text()
 
 
-class FloatType(XmlModel):
+class FloatType(XmlModel, regclass=AnIMLDocBase):
     """Individual 32-bit floating point value."""
 
     tag: str = "F"
@@ -77,7 +78,7 @@ class FloatType(XmlModel):
     value: float = Field.Text(**SERIALIZE_FLOAT)
 
 
-class IntType(XmlModel):
+class IntType(XmlModel, regclass=AnIMLDocBase):
     """Individual integer value (32 bits, signed)."""
 
     tag: str = "I"
@@ -85,7 +86,7 @@ class IntType(XmlModel):
     value: int = Field.Text(**SERIALIZE_INT)
 
 
-class LongType(XmlModel):
+class LongType(XmlModel, regclass=AnIMLDocBase):
     """Individual long integer value (64 bits, signed)."""
 
     tag: str = "L"
@@ -93,19 +94,19 @@ class LongType(XmlModel):
     value: int = Field.Text(**SERIALIZE_LONG)
 
 
-class PNGType(XmlModel):
+class PNGType(XmlModel, regclass=AnIMLDocBase):
     tag: str = "PNG"
 
     value: Optional[bytes] = Field.Text()
 
 
-class StringType(XmlModel):
+class StringType(XmlModel, regclass=AnIMLDocBase):
     tag: str = "S"
 
     value: Optional[str] = Field.Text()
 
 
-class SVGType(XmlModel):
+class SVGType(XmlModel, regclass=AnIMLDocBase):
     tag: str = "SVG"
 
     value: Optional[str] = Field.Text()

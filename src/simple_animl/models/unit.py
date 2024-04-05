@@ -4,9 +4,10 @@ from enum import Enum
 from typing import Optional
 
 from ..core import Field, XmlModel
+from .base import AnIMLDocBase
 
 
-class Unit(XmlModel):
+class Unit(XmlModel, regclass=AnIMLDocBase):
     """
     Definition of a Scientific Unit.
 
@@ -35,10 +36,10 @@ class UnitText(str, Enum):
     Candela = "cd"
 
 
-XmlModel.register_type(UnitText)
+AnIMLDocBase.register(UnitText.__name__, UnitText)
 
 
-class SIUnit(XmlModel):
+class SIUnit(XmlModel, regclass=AnIMLDocBase):
     """
     Combination of SI Units used to represent Scientific Unit.
 

@@ -1,6 +1,7 @@
 from typing import List, Optional, Union
 
 from ..core import Field, XmlModel
+from .base import AnIMLDocBase
 from .data_type import (
     SERIALIZE_BINARY,
     SERIALIZE_INT,
@@ -17,7 +18,7 @@ from .data_type import (
 )
 
 
-class AutoIncrementedValueSet(XmlModel):
+class AutoIncrementedValueSet(XmlModel, regclass=AnIMLDocBase):
     """Multiple values given in form of a start value and an increment.
 
     Attributes:
@@ -36,7 +37,7 @@ class AutoIncrementedValueSet(XmlModel):
     increment: Union[DoubleType, FloatType, IntType, LongType] = Field.Child()
 
 
-class EncodedValueSet(XmlModel):
+class EncodedValueSet(XmlModel, regclass=AnIMLDocBase):
     """Multiple numeric values encoded as a base64 binary string. Uses little-endian byte order.
 
     Attributes:
@@ -54,7 +55,7 @@ class EncodedValueSet(XmlModel):
     value: Optional[bytes] = Field.Text(**SERIALIZE_BINARY)
 
 
-class IndividualValueSet(XmlModel):
+class IndividualValueSet(XmlModel, regclass=AnIMLDocBase):
     """Multiple Values explicitly specified.
 
     Attributes:
