@@ -30,7 +30,8 @@ class Annotation:
             return re
         return [self.tType]
 
-    def check_type_ex(self, value: Any, name: str):
+    def check_type_ex(self, value: Any, name: str, registered_types: dict[str, Type]):
+        """Check if provided value is valid for this annotation, if not raise an exception"""
         if value is None and not self.isOptional:
             raise ValueError(f"Field '{name}' is not optional")
         if value is None:
@@ -41,7 +42,7 @@ class Annotation:
             for t in all_types:
                 yield None if isinstance(t, str) else t  # Not string
             for t in all_types:
-                yield type(self).get_type_from_string(t)
+                yield registered_types.get(t)
             for t in all_types:
                 yield locate(t)  # Use for built in types
             # raise TypeError(f"Type '{self.tType}' not found")
@@ -104,20 +105,6 @@ class Annotation:
             return _parse(annotation, target=TypingAnnotation)
         else:
             raise TypeError
-
-    @classmethod
-    def register_type(cls, Type):
-        if Type.__name__ in cls.__registered_types__:
-            raise ValueError(f"Type '{Type.__name__}' already registered")
-        cls.__registered_types__[Type.__name__] = Type
-
-    @classmethod
-    def get_type_from_string(cls, name) -> Union[Type, None]:
-        return cls.__registered_types__.get(name, None)
-
-    @classmethod
-    def get_registered_types(cls) -> list[Type]:
-        return list(cls.__registered_types__.values())
 
 
 class BaseAnnotation:

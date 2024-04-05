@@ -3,14 +3,16 @@ from typing import Optional
 from xml.etree import ElementTree
 from xml.etree.ElementTree import Element
 
+from helpers import create_dummy_regclass
+
 from simple_animl.core import Field, XmlModel
-from simple_animl.core.base import XmlMeta, class_from_tag
+from simple_animl.core.base import XmlMeta
 
 
 class TestAnnotation(unittest.TestCase):
     def test_NoAnnotation(self):
         def f():
-            class Model_B(XmlModel):
+            class Model_B(XmlModel, regclass=create_dummy_regclass()):
                 name = Field.Attribute(default="")
 
         self.assertRaisesRegex(TypeError, "Field missing annotation:", f)
@@ -18,7 +20,7 @@ class TestAnnotation(unittest.TestCase):
 
 class TestFields(unittest.TestCase):
     def test_Create(self):
-        class Model_A4(XmlModel):
+        class Model_A4(XmlModel, regclass=create_dummy_regclass()):
             name: str = Field.Attribute(default="")
             name2: Optional[str] = Field.Attribute(alias="name-2")
             name3: str = Field.Attribute(default="my-name-3")
@@ -35,22 +37,32 @@ class TestFields(unittest.TestCase):
 
 class TestClassFromTag(unittest.TestCase):
     def test_GetClass(self):
-        class T_GetClassClass(XmlModel):
+        class T_GetClassClass(XmlModel, regclass=create_dummy_regclass()):
             pass
 
-        self.assertEqual(class_from_tag("T_GetClassClass"), T_GetClassClass)
+        self.assertEqual(
+            T_GetClassClass.class_from_tag("T_GetClassClass"), T_GetClassClass
+        )
 
     def test_GetClassFail_NoClass(self):
+        class ModelA(XmlModel, regclass=create_dummy_regclass()):
+            pass
+
         self.assertRaisesRegex(
-            ValueError, "Unable to find class with tag", class_from_tag, "T_NoClass"
+            ValueError,
+            "Unable to find class with tag",
+            ModelA.class_from_tag,
+            "T_NoClass",
         )
 
     def test_GetClassFail_MultipleClass(self):
         def f():
-            class T_MultiFailClass(XmlModel):
+            regclass = create_dummy_regclass()
+
+            class T_MultiFailClass(XmlModel, regclass=regclass):
                 pass
 
-            class T_MultiFailClass(XmlModel):
+            class T_MultiFailClass(XmlModel, regclass=regclass):
                 pass
 
         self.assertRaisesRegex(
@@ -60,7 +72,7 @@ class TestClassFromTag(unittest.TestCase):
 
 class TestCustomSerializer(unittest.TestCase):
     def test_DumpAttribute(self):
-        class BoolDumpTest(XmlModel):
+        class BoolDumpTest(XmlModel, regclass=create_dummy_regclass()):
             value: bool = Field.Attribute(
                 on_serialize=lambda x: "true" if x else "false",
             )
@@ -71,7 +83,7 @@ class TestCustomSerializer(unittest.TestCase):
     def test_LoadAttribute(self):
         xml = '<BoolLoadTest value="true" />'
 
-        class BoolLoadTest(XmlModel):
+        class BoolLoadTest(XmlModel, regclass=create_dummy_regclass()):
             value: bool = Field.Attribute(
                 on_deserialize=lambda x: x == "true",
             )
@@ -80,7 +92,7 @@ class TestCustomSerializer(unittest.TestCase):
         self.assertEqual(model.value, True)
 
     def test_DumpText(self):
-        class BoolDumpTest2(XmlModel):
+        class BoolDumpTest2(XmlModel, regclass=create_dummy_regclass()):
             value: str = Field.Text(on_serialize=lambda x: x + "-1")
 
         xml = BoolDumpTest2(value="hello").dump_xml()
@@ -89,7 +101,7 @@ class TestCustomSerializer(unittest.TestCase):
     def test_LoadText(self):
         xml = "<BoolLoadTest2>text</BoolLoadTest2>"
 
-        class BoolLoadTest2(XmlModel):
+        class BoolLoadTest2(XmlModel, regclass=create_dummy_regclass()):
             value: str = Field.Text(on_deserialize=lambda x: x + "-2")
 
         model = BoolLoadTest2.load_xml(ElementTree.fromstring(xml))
@@ -98,7 +110,7 @@ class TestCustomSerializer(unittest.TestCase):
 
 class TestDumpAttribute(unittest.TestCase):
     def test_Dump(self):
-        class Model_AC(XmlModel):
+        class Model_AC(XmlModel, regclass=create_dummy_regclass()):
             name: str = Field.Attribute()
 
         xml = Model_AC(name="my-name").dump_xml()
@@ -109,13 +121,15 @@ class TestDumpAttribute(unittest.TestCase):
 
 class TestDumpChild(unittest.TestCase):
     def test_Dump(self):
-        class Model_B(XmlModel):
+        regclass = create_dummy_regclass()
+
+        class Model_B(XmlModel, regclass=regclass):
             pass
 
-        class Model_C(XmlModel):
+        class Model_C(XmlModel, regclass=regclass):
             name: str = Field.Attribute()
 
-        class Model_A2(XmlModel):
+        class Model_A2(XmlModel, regclass=regclass):
             child: Model_B = Field.Child()
             child2: list[Model_C] = Field.Child(
                 default=[
@@ -137,7 +151,7 @@ class TestDumpChild(unittest.TestCase):
 
 class TestDumpText(unittest.TestCase):
     def test_Dump(self):
-        class Model_A3(XmlModel):
+        class Model_A3(XmlModel, regclass=create_dummy_regclass()):
             text: str = Field.Text()
 
         xml = Model_A3(text="my-content").dump_xml()
@@ -146,7 +160,7 @@ class TestDumpText(unittest.TestCase):
 
     def test_DumpFail_MultipleText(self):
         def f():
-            class Model_A(XmlModel):
+            class Model_A(XmlModel, regclass=create_dummy_regclass()):
                 text: str = Field.Text(default="my-content")
                 text2: str = Field.Text(default="my-content")
 
@@ -155,7 +169,7 @@ class TestDumpText(unittest.TestCase):
 
 class TestLoadAttribute(unittest.TestCase):
     def test_Load(self):
-        class T_Model_LoadAttribute(XmlModel):
+        class T_Model_LoadAttribute(XmlModel, regclass=create_dummy_regclass()):
             name: str = Field.Attribute()
 
         et = Element("T_Model_LoadAttribute", attrib={"name": "my-name"})
@@ -165,10 +179,12 @@ class TestLoadAttribute(unittest.TestCase):
 
 class TestLoadChild(unittest.TestCase):
     def test_Load(self):
-        class T_Model_LoadChildB(XmlModel):
+        regclass = create_dummy_regclass()
+
+        class T_Model_LoadChildB(XmlModel, regclass=regclass):
             name: Optional[str] = Field.Attribute(default="my-name")
 
-        class T_Model_LoadChild(XmlModel):
+        class T_Model_LoadChild(XmlModel, regclass=regclass):
             child: T_Model_LoadChildB = Field.Child()
 
         et = Element("T_Model_LoadChild")
@@ -180,7 +196,7 @@ class TestLoadChild(unittest.TestCase):
 
 class TestLoadText(unittest.TestCase):
     def test_Load(self):
-        class T_Model_LoadText(XmlModel):
+        class T_Model_LoadText(XmlModel, regclass=create_dummy_regclass()):
             text: Optional[str] = Field.Text()
 
         et = Element("T_Model_LoadText")
@@ -198,7 +214,7 @@ class TestMeta(unittest.TestCase):
         self.assertRaises(TypeError, define_model)
 
     def test_GoodMeta(self):
-        class GoodModel(XmlModel):
+        class GoodModel(XmlModel, regclass=create_dummy_regclass()):
             pass
 
         self.assertEqual(GoodModel.tag, GoodModel.__name__)
@@ -206,13 +222,13 @@ class TestMeta(unittest.TestCase):
 
 class TestTag(unittest.TestCase):
     def test_CustomTag(self):
-        class TagModel(XmlModel):
+        class TagModel(XmlModel, regclass=create_dummy_regclass()):
             tag = "mytag"
 
         self.assertEqual(TagModel().tag, "mytag")
 
     def test_DefaultTag(self):
-        class TagModel_(XmlModel):
+        class TagModel_(XmlModel, regclass=create_dummy_regclass()):
             pass
 
         self.assertEqual(TagModel_().tag, "TagModel_")

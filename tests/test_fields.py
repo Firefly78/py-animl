@@ -2,6 +2,8 @@ import unittest
 import xml.etree.ElementTree as etree
 from enum import Enum
 
+from helpers import create_dummy_regclass
+
 from simple_animl.core.base import XmlModel
 from simple_animl.core.fields import Field
 from simple_animl.utils.regex import NC_NAME
@@ -31,7 +33,7 @@ class TestAttribute(unittest.TestCase):
                 self.assertEqual(field.get_default(), test[1])
 
     def test_Validate_Dump(self):
-        class A_ValidateDump(XmlModel):
+        class A_ValidateDump(XmlModel, regclass=create_dummy_regclass()):
             value: str = Field.Attribute(regex=NC_NAME)
 
         # OK
@@ -44,7 +46,7 @@ class TestAttribute(unittest.TestCase):
         )
 
     def test_Validate_Init(self):
-        class A_ValidateInit(XmlModel):
+        class A_ValidateInit(XmlModel, regclass=create_dummy_regclass()):
             value: str = Field.Attribute(regex=NC_NAME)
 
         # OK
@@ -57,7 +59,7 @@ class TestAttribute(unittest.TestCase):
         )
 
     def test_Validate_Load(self):
-        class A_ValidateLoad(XmlModel):
+        class A_ValidateLoad(XmlModel, regclass=create_dummy_regclass()):
             value: str = Field.Attribute(regex=NC_NAME)
 
         # OK
@@ -112,9 +114,11 @@ class TestText(unittest.TestCase):
         class MyEnumED(str, Enum):
             VALUE1 = "this-is-my-text"
 
-        XmlModel.register_type(MyEnumED)
+        regclass = create_dummy_regclass()
 
-        class B(XmlModel):
+        regclass.register(MyEnumED.__name__, MyEnumED)
+
+        class B(XmlModel, regclass=regclass):
             value: MyEnumED = Field.Text()
 
         xml_string = "<B>this-is-my-text</B>"
@@ -126,9 +130,10 @@ class TestText(unittest.TestCase):
         class MyEnumEDE(str, Enum):
             VALUE1 = "this-is-my-text"
 
-        XmlModel.register_type(MyEnumEDE)
+        regclass = create_dummy_regclass()
+        regclass.register(MyEnumEDE.__name__, MyEnumEDE)
 
-        class B2(XmlModel):
+        class B2(XmlModel, regclass=regclass):
             value: MyEnumEDE = Field.Text()
 
         xml_string = "<B2>bad-string</B2>"
@@ -139,9 +144,10 @@ class TestText(unittest.TestCase):
         class MyEnumES(str, Enum):
             VALUE1 = "this-is-my-text"
 
-        XmlModel.register_type(MyEnumES)
+        regclass = create_dummy_regclass()
+        regclass.register(MyEnumES.__name__, MyEnumES)
 
-        class ES(XmlModel):
+        class ES(XmlModel, regclass=regclass):
             value: MyEnumES = Field.Text()  # Use enum as field
 
         m = ES(value=MyEnumES.VALUE1)
@@ -154,9 +160,10 @@ class TestText(unittest.TestCase):
         class MyEnumESE(Enum):
             VALUE1 = "this-is-my-text"
 
-        XmlModel.register_type(MyEnumESE)
+        regclass = create_dummy_regclass()
+        regclass.register(MyEnumESE.__name__, MyEnumESE)
 
-        class ESE(XmlModel):
+        class ESE(XmlModel, regclass=regclass):
             value: MyEnumESE = Field.Text()  # Use enum as field
 
         m = ESE(value=MyEnumESE.VALUE1)
@@ -164,7 +171,7 @@ class TestText(unittest.TestCase):
         self.assertRaisesRegex(TypeError, "type must be string", lambda: m.dump_xml())
 
     def test_Validate_Dump(self):
-        class A_ValidateTDump(XmlModel):
+        class A_ValidateTDump(XmlModel, regclass=create_dummy_regclass()):
             value: str = Field.Text(regex=NC_NAME)
 
         # OK
@@ -177,7 +184,7 @@ class TestText(unittest.TestCase):
         )
 
     def test_Validate_Init(self):
-        class A_ValidateTInit(XmlModel):
+        class A_ValidateTInit(XmlModel, regclass=create_dummy_regclass()):
             value: str = Field.Text(regex=NC_NAME)
 
         # OK
@@ -190,7 +197,7 @@ class TestText(unittest.TestCase):
         )
 
     def test_Validate_Load(self):
-        class A_ValidateTLoad(XmlModel):
+        class A_ValidateTLoad(XmlModel, regclass=create_dummy_regclass()):
             value: str = Field.Text(regex=NC_NAME)
 
         # OK

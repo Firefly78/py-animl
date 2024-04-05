@@ -3,9 +3,10 @@ from __future__ import annotations
 from typing import Optional
 
 from ..core import Field, XmlModel
+from .base import AnIMLDocBase
 
 
-class Tag(XmlModel):
+class Tag(XmlModel, regclass=AnIMLDocBase):
     """
     Tag to mark related data items. When a value is given, it may also serve as a reference to an external data system.
 
@@ -19,7 +20,7 @@ class Tag(XmlModel):
     value: str = Field.Attribute()
 
 
-class TagSet(XmlModel):
+class TagSet(XmlModel, regclass=AnIMLDocBase):
     """Set of Tag elements."""
 
     tags: Optional[list[Tag]] = Field.Child(default_factory=list)

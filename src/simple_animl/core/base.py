@@ -15,17 +15,37 @@ logger = logging.getLogger(__name__)
 class XmlMeta(type):
     """Meta class used to evaluate fields on class definition"""
 
-    def __new__(cls, name: str, bases: tuple[type], attrs: dict[str, Any]):
+    def __new__(
+        cls,
+        name: str,
+        bases: tuple[type],
+        attrs: dict[str, Any],
+        regclass: type[XmlDocBase] = None,
+    ):
         """Called when a new class is defined"""
         # If model name is XmlModel - just define it and return
         # It is not possible to access the 'XmlModel' type - since it is not yet defined
         # Note to self: super().__new__ has side effects, make sure it is never run twice!
-        if name == "XmlModel":
+        if attrs["__module__"] == __name__ and name == "XmlModel":
             return super().__new__(cls, name, bases, attrs)  # Just return (Do nothing)
+
+        # Check that XmlDocBase was not used instead of XmlModel
+        if (
+            attrs["__module__"] == __name__ and name == "XmlDocBase"
+        ) or XmlDocBase in bases:
+            raise TypeError("XmlDocBase should not be used with RegXmlMeta metaclass")
 
         # Check that created class is a subclass of XmlModel
         if XmlModel not in bases:
             raise TypeError(f"Only XmlModel can be used with XmlMeta not '{name}'")
+
+        # Enforce use of regclass
+        if regclass is None:
+            raise ValueError("Regclass must be provided")
+
+        # Check that regclass is a subclass of XmlDocBase
+        if not issubclass(regclass, XmlDocBase):
+            raise TypeError("Regclass class is not a subclass of XmlDocBase")
 
         # Extract fields and tag details
         fields = cls.extract_fields(attrs)
@@ -37,8 +57,9 @@ class XmlMeta(type):
 
         cls.check_restrictions(fields)
 
-        new_type = super().__new__(cls, name, bases, attrs)
-        XmlModel.register_type(new_type)  # Register class
+        new_type: XmlModel = super().__new__(cls, name, bases, attrs)
+        regclass.register(tag, new_type)  # Register class
+        new_type.assign_regclass(regclass)  # Assign lookup class
         return new_type
 
     @classmethod
@@ -78,18 +99,28 @@ class XmlMeta(type):
         return attrs["tag"]  # Otherwise - use user provided one.
 
 
-def class_from_tag(tag: str):
-    """Helper function for getting an XmlModel subclass from a name-string"""
+class XmlDocBase:
+    """Base class for registering XmlModel classes for deserialization"""
 
-    all_models = Annotation.get_registered_types()
-    L = list(filter(lambda x: issubclass(x, XmlModel) and x.tag == tag, all_models))
+    @classmethod
+    def get_registered_types(cls):
+        """Get all registered types"""
+        if not hasattr(cls, "_static_dict"):
+            cls._static_dict: dict[str, type] = {}
+        return cls._static_dict.copy()
 
-    if len(L) == 0:
-        raise ValueError(f"Unable to find class with tag '{tag}'")
-    elif len(L) > 1:
-        raise ValueError(f"Multiple classes with tag '{tag}'")
-    else:
-        return L[0]
+    @classmethod
+    def register(cls, key, value):
+        """Register a type for deserialization"""
+        if cls is XmlModel:
+            raise TypeError("Cannot register on base class")
+        if not hasattr(cls, "_static_dict"):
+            cls._static_dict = {}
+        # if cls.__name__ == "key":
+        #    return
+        if key in cls._static_dict:
+            raise ValueError(f"Type '{key}' already registered")
+        cls._static_dict[key] = value
 
 
 class XmlModel(metaclass=XmlMeta):
@@ -127,7 +158,9 @@ class XmlModel(metaclass=XmlMeta):
                 raise KeyError(f"Missing parameter: '{key}'")
 
             value = kwargs[key] if key in kwargs else i.get_default()
-            i.annotation.check_type_ex(value, i.name)  # Type check
+            i.annotation.check_type_ex(
+                value, i.name, registered_types=type(self).get_registered_types()
+            )  # Type check
             if value is not None:  # None check is handled by .annotation.check_type_ex
                 i.validate_ex(value)  # Field validation
             setattr(self, i.name, value)
@@ -294,7 +327,7 @@ class XmlModel(metaclass=XmlMeta):
         child_fields = cls._get_fields_(Field.Child)
         for child in x:
             # Create child instance from xml
-            child_inst = class_from_tag(child.tag).load_xml(child)
+            child_inst = cls.class_from_tag(child.tag).load_xml(child)
 
             # Find a field that matches the child
             a = [x for x in child_fields if x.annotation.validcontent(type(child_inst))]
@@ -343,6 +376,25 @@ class XmlModel(metaclass=XmlMeta):
         return arguments
 
     @classmethod
-    def register_type(cls, t: type):
-        """Register a type for serialization/deserialization"""
-        Annotation.register_type(t)
+    def assign_regclass(cls, regclass: type[XmlDocBase]):
+        """Assign the regclass for this model"""
+        cls.regclass = regclass
+
+    @classmethod
+    def get_registered_types(cls):
+        """Get all registered types"""
+        return cls.regclass.get_registered_types()
+
+    @classmethod
+    def class_from_tag(cls, tag: str):
+        """Helper function for getting an XmlModel subclass from a name-string"""
+
+        all_models = cls.get_registered_types().values()
+        L = list(filter(lambda x: issubclass(x, XmlModel) and x.tag == tag, all_models))
+
+        if len(L) == 0:
+            raise ValueError(f"Unable to find class with tag '{tag}'")
+        elif len(L) > 1:
+            raise ValueError(f"Multiple classes with tag '{tag}'")
+        else:
+            return L[0]

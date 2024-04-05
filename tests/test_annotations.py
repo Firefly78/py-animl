@@ -4,6 +4,7 @@ from typing import List, Optional, Set, Union
 
 from simple_animl.core import Field, XmlModel
 from simple_animl.core.annotations import Annotation
+from helpers import create_dummy_regclass
 
 
 class A:
@@ -20,7 +21,7 @@ class TestGeneral(unittest.TestCase):
     def test_Model(self):
         A = "my_annotation_as_string"
 
-        class Model_A(XmlModel):
+        class Model_A(XmlModel, regclass=create_dummy_regclass()):
             # pylint: disable=reportUndefinedVariable
             name: A = Field.Attribute()
 
@@ -121,16 +122,18 @@ class TestTypingLibTypes(unittest.TestCase):
 
 class TestUnionTypes(unittest.TestCase):
     def test_Model(self):
-        class TestUnionTypesA(XmlModel):
+        regclass = create_dummy_regclass()
+
+        class TestUnionTypesA(XmlModel, regclass=regclass):
             pass
 
-        class TestUnionTypesB(XmlModel):
+        class TestUnionTypesB(XmlModel, regclass=regclass):
             pass
 
-        class TestUnionTypesC(XmlModel):
+        class TestUnionTypesC(XmlModel, regclass=regclass):
             pass
 
-        class UnionModel(XmlModel):
+        class UnionModel(XmlModel, regclass=regclass):
             child_either_A_or_B: Union[
                 TestUnionTypesA, TestUnionTypesB, TestUnionTypesC
             ] = Field.Child()
@@ -141,13 +144,15 @@ class TestUnionTypes(unittest.TestCase):
         self.assertTrue(UnionModel._fields[0].annotation.validtype(TestUnionTypesC))
 
     def test_Load(self):
-        class TestUnionTypesD(XmlModel):
+        regclass = create_dummy_regclass()
+
+        class TestUnionTypesD(XmlModel, regclass=regclass):
             tag = "DD"
 
-        class TestUnionTypesE(XmlModel):
+        class TestUnionTypesE(XmlModel, regclass=regclass):
             tag = "EE"
 
-        class TestUnionLoadModel(XmlModel):
+        class TestUnionLoadModel(XmlModel, regclass=regclass):
             child: Union[TestUnionTypesD, TestUnionTypesE] = Field.Child()
 
         xml1 = "<TestUnionLoadModel><DD/></TestUnionLoadModel>"
