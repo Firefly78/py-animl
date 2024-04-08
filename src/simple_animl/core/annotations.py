@@ -17,8 +17,9 @@ class Annotation:
     def isList(self):
         return self.validtype(list)
 
+    @property
     def isOptional(self):
-        return self.tType == Union and NoneType in self.subType
+        return self.tType == Union and self.validsubtype(NoneType)
 
     __registered_types__ = {}
 

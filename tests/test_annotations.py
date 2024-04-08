@@ -68,12 +68,16 @@ class TestStringTypes(unittest.TestCase):
         self.assertEqual(ann.tType, list)
         self.assertTrue(ann.validsubtype(A))
         self.assertFalse(ann.validtype(None))
+        self.assertTrue(ann.isList)
+        self.assertFalse(ann.isOptional)
 
     def test_isOptional(self):
         ann = Annotation.parse("Optional[A]")
         self.assertEqual(ann.tType, Union)
         self.assertTrue(ann.validtype(A))
         self.assertTrue(ann.validtype(None))
+        self.assertFalse(ann.isList)
+        self.assertTrue(ann.isOptional)
 
     def test_SyntaxCheck(self):
         # Make sure correct error is raised
