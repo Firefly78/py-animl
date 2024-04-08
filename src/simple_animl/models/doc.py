@@ -6,6 +6,7 @@ from xml.etree.ElementTree import ElementTree
 
 from ..core import Field, XmlModel
 from .base import AnIMLDocBase
+from .result import ExperimentStepSet
 from .sample import SampleSet
 
 VERSION: str = "0.90"
@@ -25,7 +26,8 @@ class AnIMLDoc(XmlModel, regclass=AnIMLDocBase):
         xsi_schemalocation (str): Schema location
 
     Children:
-        sample_set (SampleSet): Collection of Samples
+        sample_set (optional(SampleSet)): Collection of Samples
+        experiment_set (optional(ExperimentStepSet)): Collection of Experiment Steps
         TODO: Add more children
 
     """
@@ -40,7 +42,11 @@ class AnIMLDoc(XmlModel, regclass=AnIMLDocBase):
         default=XSI_SCHEMALOCATION, alias="xsi:schemaLocation"
     )
 
+    # Children
     sample_set: Optional[SampleSet] = Field.Child()
+    experiment_set: Optional[ExperimentStepSet] = Field.Child()
+    # audit_trail_entry_set: Optional[AuditTrailEntrySet] = Field.Child()
+    # signature_set: Optional[SignatureSet] = Field.Child()
 
     @classmethod
     def loads(cls, xml: Union[IO, str]) -> AnIMLDoc:
