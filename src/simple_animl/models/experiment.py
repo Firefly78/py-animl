@@ -10,11 +10,33 @@ from .infrastructure import Infrastructure
 from .method import Method
 from .series import SeriesSet
 from .tags import TagSet
-from .techinque import Technique
+from .technique import Technique
 from .template import Template
 
 
 class ExperimentStep(XmlModel, regclass=AnIMLDocBase):
+    """
+    Container that documents a step in an experiment. Use one ExperimentStep \
+        per application of a Technique.
+
+    Attributes:
+        experimentStepID (str): Unique identifier for this ExperimentStep. Used to \
+            point to this step from an ExperimentDataReference.
+        name (str): Plain-text name of this item.
+        comment (str): Unstructured text comment to further describe the ExperimentStep.
+        id (str): Anchor point for digital signature. This identifier is referred to \
+            from the "Reference" element in a Signature. Unique per document.
+        sourceDataLocation (str): Points to the original data source. May be a file name, uri, database ID, etc.
+        templateUsed (str): Token with up to 1024 characters
+
+    Children:
+        tag_set (optional(TagSet)): Collection of Tags
+        technique (optional(Technique)): Technique used
+        infrastructure (optional(Infrastructure)): Infrastructure used
+        method (optional(Method)): Method used in this step
+        result (optional(list(Result))): Collection of Results
+    """
+
     # Attributes
     experimentStepID: str = Field.Attribute()
     name: str = Field.Attribute()

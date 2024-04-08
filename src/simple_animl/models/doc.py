@@ -6,7 +6,7 @@ from xml.etree.ElementTree import ElementTree
 
 from ..core import Field, XmlModel
 from .base import AnIMLDocBase
-from .result import ExperimentStepSet
+from .experiment import ExperimentStepSet
 from .sample import SampleSet
 
 VERSION: str = "0.90"
