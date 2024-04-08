@@ -1,4 +1,4 @@
-import importlib
+import importlib.util
 import os
 import unittest
 
@@ -10,10 +10,10 @@ class TestImport(unittest.TestCase):
         _ = Field, XmlModel
 
     def test_import_all_models(self):
-        import simple_animl
+        """Test importing of all *.py files in the models directory."""
 
-        module_dir = os.path.dirname(os.path.abspath(simple_animl.__file__))
-        models_dir = os.path.join(module_dir, "models")
+        path = importlib.util.find_spec("simple_animl").submodule_search_locations[0]
+        models_dir = os.path.join(path, "models")
 
         for file_name in os.listdir(models_dir):
             if not file_name.endswith(".py") or file_name == "__init__.py":
