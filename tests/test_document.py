@@ -1,8 +1,13 @@
 import unittest
 
-from simple_animl import AnIMLDoc
 from simple_animl.core import XmlModel
-from simple_animl.models.doc import VERSION, XMLNS, XMLNS_XSI, XSI_SCHEMALOCATION
+from simple_animl.models.doc import (
+    VERSION,
+    XMLNS,
+    XMLNS_XSI,
+    XSI_SCHEMALOCATION,
+    AnIMLDoc,
+)
 
 
 class TestDoc(unittest.TestCase):

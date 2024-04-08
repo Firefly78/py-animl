@@ -1,8 +1,8 @@
 import unittest
 from xml.etree import ElementTree
 
-from simple_animl import AnIMLDoc
 from simple_animl.core import XmlModel
+from simple_animl.models.doc import AnIMLDoc
 from simple_animl.models.sample import Sample, SampleSet
 
 

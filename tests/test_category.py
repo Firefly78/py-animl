@@ -1,8 +1,9 @@
 import unittest
 from xml.etree import ElementTree
 
-from simple_animl import Category, Sample
 from simple_animl.core.base import XmlModel
+from simple_animl.models.category import Category
+from simple_animl.models.sample import Sample
 
 
 class TestCategory(unittest.TestCase):
