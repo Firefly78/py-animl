@@ -21,8 +21,6 @@ class Annotation:
     def isOptional(self):
         return self.tType == Union and self.validsubtype(NoneType)
 
-    __registered_types__ = {}
-
     def all_types(self):
         if self.tType == Union:
             re = []
