@@ -42,6 +42,9 @@ class Annotation:
                 yield None if isinstance(t, str) else t  # Not string
             for t in all_types:
                 yield registered_types.get(t)
+            reg_types_true_names = {v.__name__: v for v in registered_types.values()}
+            for t in all_types:
+                yield reg_types_true_names.get(t)
             for t in all_types:
                 yield locate(t)  # Use for built in types
             # raise TypeError(f"Type '{self.tType}' not found")
