@@ -17,12 +17,12 @@ class DeviceIdentifier(XmlModel, regclass=AnIMLDocBase):
     value: str = Field.Attribute()
 
 
-class Firmware(XmlModel, regclass=AnIMLDocBase):
+class FirmwareVersion(XmlModel, regclass=AnIMLDocBase):
     """
     Version identifier of firmware release.
 
     Text:
-        value (str): Firmware value
+        value (str): Firmware version value
     """
 
     # Text
@@ -55,8 +55,8 @@ class Device(XmlModel, regclass=AnIMLDocBase):
     """
 
     # Children
-    firmware: Optional[Firmware] = Field.Child()
-    identifier: DeviceIdentifier = Field.Child()
-    manufacturer: Manufacturer = Field.Child()
+    identifier: Optional[DeviceIdentifier] = Field.Child()
+    manufacturer: Optional[Manufacturer] = Field.Child()
     name: Name = Field.Child()
+    firmware: Optional[FirmwareVersion] = Field.Child()
     serialNumber: Optional[SerialNumber] = Field.Child()

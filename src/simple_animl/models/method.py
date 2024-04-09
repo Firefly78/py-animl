@@ -26,7 +26,7 @@ class Method(XmlModel, regclass=AnIMLDocBase):
     """
 
     # Attributes
-    name: str = Field.Attribute()
+    name: Optional[str] = Field.Attribute()
     id: Optional[str] = Field.Attribute(regex=NC_NAME)
 
     # Children

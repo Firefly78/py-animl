@@ -90,5 +90,5 @@ class Result(XmlModel, regclass=AnIMLDocBase):
 
     # Children
     series: Optional[SeriesSet] = Field.Child()
-    category_set: List[Category] = Field.Child()
+    category_set: Optional[List[Category]] = Field.Child()
     experiment_step: Optional[ExperimentStepSet] = Field.Child()

@@ -193,8 +193,8 @@ class SampleReferenceSet(XmlModel, regclass=AnIMLDocBase):
     id: Optional[str] = Field.Attribute(regex=NC_NAME)
 
     # Children
-    sample_references: list[SampleReference] = Field.Child()
-    sample_inheritances: list[SampleInheritance] = Field.Child()
+    sample_references: Optional[list[SampleReference]] = Field.Child()
+    sample_inheritances: Optional[list[SampleInheritance]] = Field.Child()
 
 
 class Infrastructure(XmlModel, regclass=AnIMLDocBase):

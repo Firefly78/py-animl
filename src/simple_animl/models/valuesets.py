@@ -68,17 +68,19 @@ class IndividualValueSet(XmlModel, regclass=AnIMLDocBase):
 
     endIndex: Optional[int] = Field.Attribute(**SERIALIZE_INT)
     startIndex: Optional[int] = Field.Attribute(**SERIALIZE_INT)
-    values: List[
-        Union[
-            BooleanType,
-            DoubleType,
-            DateTimeType,
-            EmbeddedXmlType,
-            FloatType,
-            IntType,
-            LongType,
-            PNGType,
-            StringType,
-            SVGType,
+    values: Optional[
+        List[
+            Union[
+                BooleanType,
+                DoubleType,
+                DateTimeType,
+                EmbeddedXmlType,
+                FloatType,
+                IntType,
+                LongType,
+                PNGType,
+                StringType,
+                SVGType,
+            ]
         ]
     ] = Field.Child()
