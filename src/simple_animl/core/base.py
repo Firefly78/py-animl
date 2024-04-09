@@ -398,3 +398,11 @@ class XmlModel(metaclass=XmlMeta):
             raise ValueError(f"Multiple classes with tag '{tag}'")
         else:
             return L[0]
+
+
+def scrub_namespace(x: ET.Element):
+    """Remove namespace from an XML element and its children"""
+    if "}" in x.tag:
+        x.tag = x.tag.split("}")[1]
+    for child in x:
+        scrub_namespace(child)

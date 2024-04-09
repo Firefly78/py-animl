@@ -4,7 +4,7 @@ from io import StringIO
 from typing import IO, Optional, Union
 from xml.etree.ElementTree import ElementTree
 
-from ..core import Field, XmlModel
+from ..core import Field, XmlModel, scrub_namespace
 from .base import AnIMLDocBase
 from .experiment import ExperimentStepSet
 from .sample import SampleSet
@@ -58,4 +58,5 @@ class AnIMLDoc(XmlModel, regclass=AnIMLDocBase):
             raise TypeError(f"Expected str or IO, got {type(xml)}")
         et = ElementTree()
         et.parse(source=xml)
+        scrub_namespace(et.getroot())
         return cls.load_xml(et.getroot())
