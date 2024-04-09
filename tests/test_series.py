@@ -4,7 +4,7 @@ from xml.etree import ElementTree
 from simple_animl.core.base import XmlModel
 from simple_animl.models.series import (
     Dependency,
-    ParameterTypes,
+    ParameterType,
     PlotScale,
     Series,
     SeriesSet,
@@ -20,7 +20,7 @@ class TestSeriesSet(unittest.TestCase):
             id="c1234",
             PlotScale=PlotScale.Linear,
             seriesID="b1234",
-            seriesType=ParameterTypes.Int32,
+            seriesType=ParameterType.Int32,
             visible=True,
             valuesets=[],
             unit=Unit(label="m", quantity="m", siunits=[SIUnit()]),
@@ -67,7 +67,7 @@ class TestSeries(unittest.TestCase):
             id="c1234",
             plotScale=PlotScale.Linear,
             seriesID="b1234",
-            seriesType=ParameterTypes.Int32,
+            seriesType=ParameterType.Int32,
             visible=True,
             valuesets=[],
             unit=Unit(label="m", quantity="m", siunits=[SIUnit()]),

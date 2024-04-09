@@ -5,7 +5,7 @@ from ..core import Field, XmlModel
 from ..utils.regex import NC_NAME
 from .base import AnIMLDocBase
 from .data_type import SERIALIZE_BOOL, SERIALIZE_INT
-from .parameter import ParameterTypes
+from .parameter import ParameterType
 from .unit import Unit
 from .valuesets import AutoIncrementedValueSet, EncodedValueSet, IndividualValueSet
 
@@ -15,11 +15,17 @@ class Dependency(str, Enum):
     Dependent = "dependent"
 
 
+AnIMLDocBase.register(Dependency.__name__, Dependency)
+
+
 class PlotScale(str, Enum):
     Linear = "linear"
     Ln = "ln"
     Log = "log"
     none = "none"
+
+
+AnIMLDocBase.register(PlotScale.__name__, PlotScale)
 
 
 class Series(XmlModel, regclass=AnIMLDocBase):
@@ -44,7 +50,7 @@ class Series(XmlModel, regclass=AnIMLDocBase):
     id: Optional[str] = Field.Attribute(regex=NC_NAME)
     plotScale: Optional[PlotScale] = Field.Attribute()
     seriesID: str = Field.Attribute()
-    seriesType: ParameterTypes = Field.Attribute()
+    seriesType: ParameterType = Field.Attribute()
     visible: Optional[bool] = Field.Attribute(**SERIALIZE_BOOL)
 
     valuesets: Optional[

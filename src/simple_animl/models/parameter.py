@@ -21,7 +21,7 @@ from .data_type import (
 from .unit import Unit
 
 
-class ParameterTypes(str, Enum):
+class ParameterType(str, Enum):
     Int32 = "Int32"
     Int64 = "Int64"
     Float32 = "Float32"
@@ -32,6 +32,9 @@ class ParameterTypes(str, Enum):
     EmbeddedXML = "EmbeddedXML"
     PNG = "PNG"
     SVG = "SVG"
+
+
+AnIMLDocBase.register(ParameterType.__name__, ParameterType)
 
 
 class Parameter(XmlModel, regclass=AnIMLDocBase):
@@ -51,7 +54,7 @@ class Parameter(XmlModel, regclass=AnIMLDocBase):
     """
 
     name: str = Field.Attribute()
-    parameterType: ParameterTypes = Field.Attribute()
+    parameterType: ParameterType = Field.Attribute()
     id: Optional[str] = Field.Attribute(regex=NC_NAME)
 
     value: Union[

@@ -13,6 +13,9 @@ class UserType(str, Enum):
     Software = "software"
 
 
+AnIMLDocBase.register(UserType.__name__, UserType)
+
+
 class Author(XmlModel, regclass=AnIMLDocBase):
     """
     Information about a person, a device or a piece of software authoring AnIML files.

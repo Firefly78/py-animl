@@ -13,6 +13,9 @@ class PurposeType(str, Enum):
     Consumed = "consumed"
 
 
+AnIMLDocBase.register(PurposeType.__name__, PurposeType)
+
+
 class ExperimentDataReference(XmlModel, regclass=AnIMLDocBase):
     """
     Reference to an Experiment Step whose data are consumed.
