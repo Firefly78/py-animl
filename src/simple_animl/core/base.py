@@ -68,7 +68,7 @@ class XmlMeta(type):
 
         # Check that there is at most one text field
         if len(list(filter(lambda x: isinstance(x, Field.Text), fields))) > 1:
-            raise TypeError("Only one text field allowed")
+            raise TypeError(f"Only one text field allowed ({cls.__name__})")
 
     @classmethod
     def extract_fields(cls, attrs: dict[str, Any]) -> list[Field.Base]:
@@ -155,7 +155,7 @@ class XmlModel(metaclass=XmlMeta):
                 and not i.annotation.isOptional
                 and not i.has_default()
             ):
-                raise KeyError(f"Missing parameter: '{key}'")
+                raise KeyError(f"Missing parameter '{self.tag}.{key}'")
 
             value = kwargs[key] if key in kwargs else i.get_default()
             i.annotation.check_type_ex(
@@ -250,16 +250,16 @@ class XmlModel(metaclass=XmlMeta):
             if t is None:
                 if text.annotation.isOptional:  # Optional field
                     return None
-                raise Exception(f"Text field '{text.name}' is missing")
+                raise Exception(f"Missing text field '{self.tag}.{text.name}'")
 
             # Check type
             if not isinstance(t, str):
-                raise TypeError(f"Text field '{text.name}' type must be string")
+                raise TypeError(f"Type must be string '{self.tag}.{text.name}'")
 
             # Handle enums
             if isinstance(t, Enum):
                 if not isinstance(t.value, str):  # Check if also string
-                    raise TypeError(f"Enum value must be string")
+                    raise TypeError(f"Enum value must be string '{self.tag}'")
                 return t.value  # Return value of enum i.e. string
 
             return t
@@ -308,7 +308,7 @@ class XmlModel(metaclass=XmlMeta):
                     continue  # Skip optional fields that are not present
 
             if name not in x.attrib:
-                raise ValueError(f"Missing attribute '{name}'")
+                raise ValueError(f"Missing attribute '{x.tag}.{name}'")
 
             arguments[name] = attr.validate_ex(attr.deserialize(x.attrib[name]))
 
@@ -369,7 +369,7 @@ class XmlModel(metaclass=XmlMeta):
             return arguments
 
         if x.text is None and not txt.annotation.isOptional:
-            raise ValueError(f"Missing required text field '{txt.name}'")
+            raise ValueError(f"Missing required text field '{x.tag}.{txt.name}'")
 
         arguments[txt.name] = txt.validate_ex(txt.deserialize(x.text))
 

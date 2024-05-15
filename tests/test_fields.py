@@ -168,7 +168,7 @@ class TestText(unittest.TestCase):
 
         m = ESE(value=MyEnumESE.VALUE1)
 
-        self.assertRaisesRegex(TypeError, "type must be string", lambda: m.dump_xml())
+        self.assertRaisesRegex(TypeError, "Type must be string", lambda: m.dump_xml())
 
     def test_Validate_Dump(self):
         class A_ValidateTDump(XmlModel, regclass=create_dummy_regclass()):
