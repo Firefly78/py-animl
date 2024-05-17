@@ -1,6 +1,6 @@
 import unittest
 
-from simple_animl.utils.regex import NC_NAME
+from animl2.utils.regex import NC_NAME
 
 
 class TestRegex(unittest.TestCase):

@@ -1,4 +1,4 @@
-# Simple-AnIML
+# AnIML2
 
 ## Description
 
@@ -12,14 +12,14 @@ Python package for working with AnIML data files.
 
 ## Installation
 
-Package is available on PyPI under the name `simple-animl` and can be installed using pip.
+Package is available on PyPI under the name `animl2` and can be installed using pip.
 
 ## Example
 
 ```python
 from xml.dom import minidom
 from xml.etree import ElementTree as ET
-from simple_animl import AnIMLDoc, Sample, SampleSet
+from animl2.models import AnIMLDoc, Sample, SampleSet
 
 doc = AnIMLDoc()
 doc.sample_set = SampleSet()

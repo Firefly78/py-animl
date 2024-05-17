@@ -1,15 +1,9 @@
 import unittest
 from xml.etree import ElementTree
 
-from simple_animl.core.base import XmlModel
-from simple_animl.models.series import (
-    Dependency,
-    ParameterType,
-    PlotScale,
-    Series,
-    SeriesSet,
-)
-from simple_animl.models.unit import SIUnit, Unit
+from animl2.core.base import XmlModel
+from animl2.models.series import Dependency, ParameterType, PlotScale, Series, SeriesSet
+from animl2.models.unit import SIUnit, Unit
 
 
 class TestSeriesSet(unittest.TestCase):

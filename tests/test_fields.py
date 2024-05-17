@@ -4,9 +4,9 @@ from enum import Enum
 
 from helpers import create_dummy_regclass
 
-from simple_animl.core.base import XmlModel
-from simple_animl.core.fields import Field
-from simple_animl.utils.regex import NC_NAME
+from animl2.core.base import XmlModel
+from animl2.core.fields import Field
+from animl2.utils.regex import NC_NAME
 
 
 class TestAttribute(unittest.TestCase):

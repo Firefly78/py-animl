@@ -1,8 +1,8 @@
 import unittest
 from datetime import datetime
 
-from simple_animl.core.base import XmlModel
-from simple_animl.models.data_type import (
+from animl2.core.base import XmlModel
+from animl2.models.data_type import (
     BooleanType,
     DateTimeType,
     DoubleType,

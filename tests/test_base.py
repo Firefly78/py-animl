@@ -5,8 +5,8 @@ from xml.etree.ElementTree import Element
 
 from helpers import create_dummy_regclass
 
-from simple_animl.core import Field, XmlModel
-from simple_animl.core.base import XmlMeta
+from animl2.core import Field, XmlModel
+from animl2.core.base import XmlMeta
 
 
 class TestAnnotation(unittest.TestCase):

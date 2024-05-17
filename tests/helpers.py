@@ -1,4 +1,4 @@
-from simple_animl.core.base import XmlDocBase
+from animl2.core.base import XmlDocBase
 
 
 def create_dummy_regclass():

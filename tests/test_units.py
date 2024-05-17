@@ -2,10 +2,10 @@ import unittest
 from enum import Enum
 from xml.etree import ElementTree
 
-from simple_animl.core import XmlModel
-from simple_animl.core.annotations import Annotation
-from simple_animl.models.base import AnIMLDocBase
-from simple_animl.models.unit import SIUnit, Unit, UnitText
+from animl2.core import XmlModel
+from animl2.core.annotations import Annotation
+from animl2.models.base import AnIMLDocBase
+from animl2.models.unit import SIUnit, Unit, UnitText
 
 
 class TestSIUnit(unittest.TestCase):

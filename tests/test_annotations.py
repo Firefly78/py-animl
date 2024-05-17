@@ -4,8 +4,8 @@ from typing import List, Optional, Set, Union
 
 from helpers import create_dummy_regclass
 
-from simple_animl.core import Field, XmlModel
-from simple_animl.core.annotations import Annotation
+from animl2.core import Field, XmlModel
+from animl2.core.annotations import Annotation
 
 
 class A:

@@ -1,8 +1,8 @@
 import unittest
 from xml.etree import ElementTree
 
-from simple_animl.core import XmlModel
-from simple_animl.models.experiment import ExperimentStep, ExperimentStepSet
+from animl2.core import XmlModel
+from animl2.models.experiment import ExperimentStep, ExperimentStepSet
 
 
 class TestExperimentStep(unittest.TestCase):

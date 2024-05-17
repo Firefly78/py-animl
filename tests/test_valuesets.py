@@ -1,11 +1,11 @@
 import unittest
 from xml.etree import ElementTree
 
-from simple_animl.core import XmlModel
-from simple_animl.models.data_type import DoubleType, FloatType, IntType, LongType
-from simple_animl.models.valuesets import AutoIncrementedValueSet as AIVS
-from simple_animl.models.valuesets import EncodedValueSet as EVS
-from simple_animl.models.valuesets import IndividualValueSet as IVS
+from animl2.core import XmlModel
+from animl2.models.data_type import DoubleType, FloatType, IntType, LongType
+from animl2.models.valuesets import AutoIncrementedValueSet as AIVS
+from animl2.models.valuesets import EncodedValueSet as EVS
+from animl2.models.valuesets import IndividualValueSet as IVS
 
 
 class TestAutoIncrSets(unittest.TestCase):
