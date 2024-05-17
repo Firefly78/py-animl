@@ -12,7 +12,9 @@ from .sample import SampleSet
 VERSION: str = "0.90"
 XMLNS: str = "urn:org:astm:animl:schema:core:draft:0.90"
 XMLNS_XSI: str = "http://www.w3.org/2001/XMLSchema-instance"
-XSI_SCHEMALOCATION: str = "urn:org:astm:animl:schema:core:draft:0.90 http://schemas.animl.org/current/animl-core.xsd"
+XSI_SCHEMALOCATION: str = (
+    "urn:org:astm:animl:schema:core:draft:0.90 http://schemas.animl.org/current/animl-core.xsd"
+)
 
 
 class AnIMLDoc(XmlModel, regclass=AnIMLDocBase):

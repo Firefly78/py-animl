@@ -6,7 +6,7 @@ authors = [
 ]
 description = "Python library for working with ANIML files"
 readme = "README.md"
-requires-python = ">=3.7"
+requires-python = ">=3.9"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
@@ -17,9 +17,11 @@ dependencies = []
 
 [project.optional-dependencies]
 dev = [
-    "black",
+    "black == 24.4.1",
     "bumpver",
-    "isort",
+    "flake8 == 7.0.0",
+    "isort == 5.13.2",
+    "pytest",
 ]
 
 [project.urls]

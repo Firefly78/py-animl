@@ -167,18 +167,17 @@ class XmlModel(metaclass=XmlMeta):
 
     @overload
     @classmethod
-    def _get_fields_(cls, mask: type[Field.Attribute] = None) -> list[Field.Attribute]:
-        ...
+    def _get_fields_(
+        cls, mask: type[Field.Attribute] = None
+    ) -> list[Field.Attribute]: ...
 
     @overload
     @classmethod
-    def _get_fields_(cls, mask: type[Field.Child] = None) -> list[Field.Child]:
-        ...
+    def _get_fields_(cls, mask: type[Field.Child] = None) -> list[Field.Child]: ...
 
     @overload
     @classmethod
-    def _get_fields_(cls, mask: type[Field.Text] = None) -> list[Field.Text]:
-        ...
+    def _get_fields_(cls, mask: type[Field.Text] = None) -> list[Field.Text]: ...
 
     @classmethod
     def _get_fields_(cls, mask=None):
