@@ -118,9 +118,10 @@ class XmlDocBase:
             cls._static_dict = {}
         # if cls.__name__ == "key":
         #    return
-        if key in cls._static_dict:
+        if key in cls._static_dict and cls._static_dict[key] != value:
             raise ValueError(f"Type '{key}' already registered")
-        cls._static_dict[key] = value
+        else:
+            cls._static_dict[key] = value
 
 
 class XmlModel(metaclass=XmlMeta):
