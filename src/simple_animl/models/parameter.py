@@ -40,13 +40,13 @@ AnIMLDocBase.register(ParameterType.__name__, ParameterType)
 class Parameter(XmlModel, regclass=AnIMLDocBase):
     """
     Name/Value Pair.
-    
+
     Attributes:
         name (str): Plain-text name of this item.
         parameterType (str): Data type of this parameter
         id (str): Anchor point for digital signature. This identifier is referred \
                 to from the "Reference" element in a Signature. Unique per document.
-        
+
     Children:
         value: (??): Individual value
         unit (Unit): Definition of a Scientific Unit.

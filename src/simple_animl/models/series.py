@@ -34,9 +34,12 @@ class Series(XmlModel, regclass=AnIMLDocBase):
     Attributes:
         name (str): Plain-text name of this item.
         dependency (Dependency): Specified whether the Series is independent or dependent.
-        id (str): Anchor point for digital signature. This identifier is referred to from the "Reference" element in a Signature. Unique per document.
-        plotScale (PlotScale): Specifies whether the data in this Series is typically plotted on a linear or logarithmic scale.
-        seriesID (str): Identifies the Series. Used in References from subordinate ExperimentSteps. Unique per SeriesSet.
+        id (str): Anchor point for digital signature. This identifier is referred to from the "Reference" \
+              element in a Signature. Unique per document.
+        plotScale (PlotScale): Specifies whether the data in this Series is typically plotted on a linear \
+              or logarithmic scale.
+        seriesID (str): Identifies the Series. Used in References from subordinate ExperimentSteps. Unique \
+              per SeriesSet.
         seriesType (ParameterTypes): Data type used by all values in this Series.
         visible (bool): Specifies whether data in this Series is to be displayed to the user by default.
 
@@ -64,7 +67,8 @@ class SeriesSet(XmlModel, regclass=AnIMLDocBase):
 
     Attributes:
         name (str): Plain-text name of this item.
-        id (str): Anchor point for digital signature. This identifier is referred to from the "Reference" element in a Signature. Unique per document.
+        id (str): Anchor point for digital signature. This identifier is referred to from the "Reference" \
+            element in a Signature. Unique per document.
         length (int): Number of data points each Series contains.
 
     Children:

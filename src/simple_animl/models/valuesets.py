@@ -63,7 +63,8 @@ class IndividualValueSet(XmlModel, regclass=AnIMLDocBase):
         startIndex (int): Zero-based index of the first entry in this Value Set. The specification is inclusive.
 
     Children:
-        values (list[Union[BooleanType, DoubleType, DateTimeType, EmbeddedXmlType, FloatType, IntType, LongType, PNGType, StringType, SVGType]]): A set of Value elements.
+        values (list[Union[BooleanType, DoubleType, DateTimeType, EmbeddedXmlType, FloatType, IntType, LongType, \
+            PNGType, StringType, SVGType]]): A set of Value elements.
     """
 
     endIndex: Optional[int] = Field.Attribute(**SERIALIZE_INT)

@@ -70,7 +70,7 @@ class Sample(XmlModel, regclass=AnIMLDocBase):
 class SampleSet(XmlModel, regclass=AnIMLDocBase):
     """
     Container for Samples used in this AnIML document.
-    
+
     Attributes:
         id (str): Anchor point for digital signature. This identifier is referred \
               to from the "Reference" element in a Signature. Unique per document.

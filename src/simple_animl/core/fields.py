@@ -1,5 +1,5 @@
 import re
-from typing import Any, Union, _SpecialForm
+from typing import Any
 
 from .annotations import Annotation
 

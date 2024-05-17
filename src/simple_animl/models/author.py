@@ -1,8 +1,6 @@
 from enum import Enum
-from typing import Optional
 
 from ..core import Field, XmlModel
-from ..utils.regex import NC_NAME
 from .base import AnIMLDocBase
 from .common import Name
 

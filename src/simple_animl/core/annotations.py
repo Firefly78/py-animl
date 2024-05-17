@@ -29,6 +29,8 @@ class Annotation:
             return re
         return [self.tType]
 
+    # TODO: Refactor this function to prevent C901
+    # flake8: noqa: C901
     def check_type_ex(self, value: Any, name: str, registered_types: dict[str, Type]):
         """Check if provided value is valid for this annotation, if not raise an exception"""
         if value is None and not self.isOptional:
@@ -62,9 +64,9 @@ class Annotation:
             try:
                 t(value)  # Try to convert
                 return  # Conversion successful
-            except ValueError as ex:
+            except ValueError:
                 raise
-            except Exception as ex:
+            except Exception:
                 pass
 
         raise TypeError(
