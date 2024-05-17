@@ -103,7 +103,9 @@ class Annotation:
         # Check type-hint type and call matching constructor
         if isinstance(annotation, str):  # Check if string
             return _parse(annotation, target=StringAnnotation)
-        elif isinstance(annotation, type):  # Check if python type
+        elif (
+            isinstance(annotation, type) or annotation.__module__ == "builtins"
+        ):  # Check if python type
             return _parse(annotation, target=TypeAnnotation)
         elif annotation.__module__ == "typing":  # Check if typing.xx object
             return _parse(annotation, target=TypingAnnotation)
