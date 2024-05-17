@@ -39,7 +39,7 @@ jobs:
         black --check --verbose ./src
     - name: Check imports with isort
       run: |
-        isort --check --verbose
+        isort --check --verbose ./src
     - name: Test with pytest
       run: |
         pytest ./tests/
