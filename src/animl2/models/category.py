@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Optional
+from typing import Optional, Union
 
 from ..core import Field, XmlModel
 from .base import AnIMLDocBase
@@ -30,3 +30,22 @@ class Category(XmlModel, regclass=AnIMLDocBase):
     parameters: Optional[list[Parameter]] = Field.Child()
     series_sets: Optional[list[SeriesSet]] = Field.Child()
     sub_categories: Optional[list[Category]] = Field.Child()
+
+    def append(self, item: Union[Parameter, SeriesSet, Category]):
+        """Add and return a sub-item to this category"""
+        if isinstance(item, Parameter):
+            if self.parameters is None:
+                self.parameters = list()
+            self.parameters.append(item)
+        elif isinstance(item, SeriesSet):
+            if self.series_sets is None:
+                self.series_sets = list()
+            self.series_sets.append(item)
+        elif isinstance(item, Category):
+            if self.sub_categories is None:
+                self.sub_categories = list()
+            self.sub_categories.append(item)
+        else:
+            raise ValueError(f"Unknown item type: {type(item)}")
+
+        return item

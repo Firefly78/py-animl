@@ -6,8 +6,8 @@ from xml.etree.ElementTree import ElementTree
 
 from ..core import Field, XmlModel, scrub_namespace
 from .base import AnIMLDocBase
-from .experiment import ExperimentStepSet
-from .sample import SampleSet
+from .experiment import ExperimentStep, ExperimentStepSet
+from .sample import Sample, SampleSet
 
 VERSION: str = "0.90"
 XMLNS: str = "urn:org:astm:animl:schema:core:draft:0.90"
@@ -62,3 +62,24 @@ class AnIMLDoc(XmlModel, regclass=AnIMLDocBase):
         et.parse(source=xml)
         scrub_namespace(et.getroot())
         return cls.load_xml(et.getroot())
+
+    def append(self, item: Union[ExperimentStep, Sample]):
+        """Add and return a sample to the document"""
+        if isinstance(item, ExperimentStep):
+            if self.experiment_set is None:
+                self.experiment_set = ExperimentStepSet()
+            self.experiment_set.append(item)
+        elif isinstance(item, Sample):
+            if self.sample_set is None:
+                self.sample_set = SampleSet()
+            return self.sample_set.append(item)
+
+
+def create_document():
+    """Creates a new AnIML document"""
+    return AnIMLDoc()
+
+
+def open_document(xml: Union[IO, str]):
+    """Opens an existing AnIML document"""
+    return AnIMLDoc.loads(xml)

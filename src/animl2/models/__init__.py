@@ -2,7 +2,7 @@ from .author import Author
 from .category import Category
 from .common import Manufacturer, Name
 from .device import Device, DeviceIdentifier, FirmwareVersion, SerialNumber
-from .doc import AnIMLDoc
+from .doc import AnIMLDoc, create_document, open_document
 from .experiment import ExperimentStep, ExperimentStepSet, Result
 from .infrastructure import (
     EndValue,
@@ -33,6 +33,8 @@ __all__ = [
     Author,
     AutoIncrementedValueSet,
     Category,
+    create_document,
+    open_document,
     Dependency,
     Device,
     DeviceIdentifier,

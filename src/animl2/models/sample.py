@@ -6,7 +6,7 @@ from ..core import Field, XmlModel
 from ..utils.regex import NC_NAME
 from .base import AnIMLDocBase
 from .category import Category
-from .tags import TagSet
+from .tags import Tag, TagSet
 
 # Need have it serialized as true/false, not True/False
 SERIALIZE_BOOL = {
@@ -66,6 +66,11 @@ class Sample(XmlModel, regclass=AnIMLDocBase):
     tag_set: Optional[TagSet] = Field.Child()
     category: Optional[Category] = Field.Child()
 
+    def append(self, item: Tag):
+        if self.tag_set is None:
+            self.tag_set = TagSet()
+        return self.tag_set.append(item)
+
 
 class SampleSet(XmlModel, regclass=AnIMLDocBase):
     """
@@ -85,7 +90,8 @@ class SampleSet(XmlModel, regclass=AnIMLDocBase):
     # Children
     samples: list[Sample] = Field.Child(default_factory=list)
 
-    def add(self, sample: Sample) -> None:
+    def append(self, sample: Sample):
         if self.samples is None:
             self.samples = list()
         self.samples.append(sample)
+        return sample

@@ -66,6 +66,11 @@ class ExperimentStepSet(XmlModel, regclass=AnIMLDocBase):
     templates: list[Template] = Field.Child(default_factory=list)
     experiment_steps: Optional[list[ExperimentStep]] = Field.Child(default_factory=list)
 
+    def append(self, item: ExperimentStep) -> ExperimentStep:
+        """Add and return an ExperimentStep to the set"""
+        self.experiment_steps.append(item)
+        return item
+
 
 class Result(XmlModel, regclass=AnIMLDocBase):
     """

@@ -24,3 +24,7 @@ class TagSet(XmlModel, regclass=AnIMLDocBase):
     """Set of Tag elements."""
 
     tags: Optional[list[Tag]] = Field.Child(default_factory=list)
+
+    def append(self, tag: Tag):
+        self.tags.append(tag)
+        return tag
