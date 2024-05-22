@@ -1,7 +1,11 @@
-from ..core import Field, XmlModel
+from dataclasses import dataclass
+from typing import Annotated
+
+from ..core import TEXT, XmlModel
 from .base import AnIMLDocBase
 
 
+@dataclass
 class Name(XmlModel, regclass=AnIMLDocBase):
     """
     Common name.
@@ -12,9 +16,10 @@ class Name(XmlModel, regclass=AnIMLDocBase):
     """
 
     # Text
-    value: str = Field.Text()
+    value: Annotated[str, TEXT]
 
 
+@dataclass
 class Manufacturer(XmlModel, regclass=AnIMLDocBase):
     """
     Company name.
@@ -24,4 +29,4 @@ class Manufacturer(XmlModel, regclass=AnIMLDocBase):
     """
 
     # Text
-    value: str = Field.Text()
+    value: Annotated[str, TEXT]

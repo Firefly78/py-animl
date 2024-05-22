@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from enum import Enum
-from typing import Optional, Union
+from typing import Annotated, Optional, Union
 
-from ..core import Field, XmlModel
+from ..core import ATTRIB, CHILD, XmlModel
 from ..utils.regex import NC_NAME
 from .base import AnIMLDocBase
 from .data_type import (
@@ -37,6 +38,7 @@ class ParameterType(str, Enum):
 AnIMLDocBase.register(ParameterType.__name__, ParameterType)
 
 
+@dataclass
 class Parameter(XmlModel, regclass=AnIMLDocBase):
     """
     Name/Value Pair.
@@ -53,20 +55,24 @@ class Parameter(XmlModel, regclass=AnIMLDocBase):
 
     """
 
-    name: str = Field.Attribute()
-    parameterType: ParameterType = Field.Attribute()
-    id: Optional[str] = Field.Attribute(regex=NC_NAME)
+    name: Annotated[str, ATTRIB]
+    parameterType: Annotated[ParameterType, ATTRIB]
 
-    value: Union[
-        BooleanType,
-        DoubleType,
-        DateTimeType,
-        EmbeddedXmlType,
-        FloatType,
-        IntType,
-        LongType,
-        PNGType,
-        StringType,
-        SVGType,
-    ] = Field.Child()
-    unit: Optional[Unit] = Field.Child()
+    value: Annotated[
+        Union[
+            BooleanType,
+            DoubleType,
+            DateTimeType,
+            EmbeddedXmlType,
+            FloatType,
+            IntType,
+            LongType,
+            PNGType,
+            StringType,
+            SVGType,
+        ],
+        CHILD,
+    ]
+    unit: Annotated[Optional[Unit], CHILD]
+
+    id: Annotated[Optional[str], ATTRIB(regex=NC_NAME)] = None

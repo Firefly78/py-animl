@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from io import StringIO
-from typing import IO, Optional, Union
+from typing import IO, Annotated, Optional, Union
 from xml.etree.ElementTree import ElementTree
 
-from ..core import Field, XmlModel, scrub_namespace
+from ..core import ATTRIB, CHILD, XmlModel, scrub_namespace
 from .base import AnIMLDocBase
 from .experiment import ExperimentStep, ExperimentStepSet
 from .sample import Sample, SampleSet
@@ -17,6 +18,7 @@ XSI_SCHEMALOCATION: str = (
 )
 
 
+@dataclass
 class AnIMLDoc(XmlModel, regclass=AnIMLDocBase):
     """
     Root Element for AnIML documents.
@@ -37,18 +39,18 @@ class AnIMLDoc(XmlModel, regclass=AnIMLDocBase):
     tag = "AnIML"  # Override name to use during serialization
 
     # Manadatory attributes
-    version: Optional[str] = Field.Attribute(default=VERSION)
-    xmlns: Optional[str] = Field.Attribute(default=XMLNS)
-    xmlns_xsi: Optional[str] = Field.Attribute(default=XMLNS_XSI, alias="xmlns:xsi")
-    xsi_schemalocation: Optional[str] = Field.Attribute(
-        default=XSI_SCHEMALOCATION, alias="xsi:schemaLocation"
+    version: Annotated[Optional[str], ATTRIB] = VERSION
+    xmlns: Annotated[Optional[str], ATTRIB] = XMLNS
+    xmlns_xsi: Annotated[Optional[str], ATTRIB(alias="xmlns:xsi")] = XMLNS_XSI
+    xsi_schemalocation: Annotated[Optional[str], ATTRIB(alias="xsi:schemaLocation")] = (
+        XSI_SCHEMALOCATION
     )
 
     # Children
-    sample_set: Optional[SampleSet] = Field.Child()
-    experiment_set: Optional[ExperimentStepSet] = Field.Child()
-    # audit_trail_entry_set: Optional[AuditTrailEntrySet] = Field.Child()
-    # signature_set: Optional[SignatureSet] = Field.Child()
+    sample_set: Annotated[Optional[SampleSet], CHILD] = None
+    experiment_set: Annotated[Optional[ExperimentStepSet], CHILD] = None
+    # audit_trail_entry_set: Optional[AuditTrailEntrySet] = CHILD()
+    # signature_set: Optional[SignatureSet] = CHILD()
 
     @classmethod
     def loads(cls, xml: Union[IO, str]) -> AnIMLDoc:

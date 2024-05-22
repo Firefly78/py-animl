@@ -1,6 +1,7 @@
-from typing import List, Optional, Union
+from dataclasses import dataclass
+from typing import Annotated, List, Optional, Union
 
-from ..core import Field, XmlModel
+from ..core import ATTRIB, CHILD, TEXT, XmlModel
 from .base import AnIMLDocBase
 from .data_type import (
     SERIALIZE_BINARY,
@@ -18,6 +19,7 @@ from .data_type import (
 )
 
 
+@dataclass
 class AutoIncrementedValueSet(XmlModel, regclass=AnIMLDocBase):
     """Multiple values given in form of a start value and an increment.
 
@@ -30,13 +32,14 @@ class AutoIncrementedValueSet(XmlModel, regclass=AnIMLDocBase):
         increment (Union[DoubleType, FloatType, IntType, LongType]): Increment value
     """
 
-    endIndex: Optional[int] = Field.Attribute(**SERIALIZE_INT)
-    startIndex: Optional[int] = Field.Attribute(**SERIALIZE_INT)
+    startValue: Annotated[Union[DoubleType, FloatType, IntType, LongType], CHILD]
+    increment: Annotated[Union[DoubleType, FloatType, IntType, LongType], CHILD]
 
-    startValue: Union[DoubleType, FloatType, IntType, LongType] = Field.Child()
-    increment: Union[DoubleType, FloatType, IntType, LongType] = Field.Child()
+    endIndex: Annotated[Optional[int], ATTRIB(**SERIALIZE_INT)] = None
+    startIndex: Annotated[Optional[int], ATTRIB(**SERIALIZE_INT)] = None
 
 
+@dataclass
 class EncodedValueSet(XmlModel, regclass=AnIMLDocBase):
     """Multiple numeric values encoded as a base64 binary string. Uses little-endian byte order.
 
@@ -49,12 +52,13 @@ class EncodedValueSet(XmlModel, regclass=AnIMLDocBase):
 
     """
 
-    endIndex: Optional[int] = Field.Attribute(**SERIALIZE_INT)
-    startIndex: Optional[int] = Field.Attribute(**SERIALIZE_INT)
+    value: Annotated[Optional[bytes], TEXT(**SERIALIZE_BINARY)]
 
-    value: Optional[bytes] = Field.Text(**SERIALIZE_BINARY)
+    endIndex: Annotated[Optional[int], ATTRIB(**SERIALIZE_INT)] = None
+    startIndex: Annotated[Optional[int], ATTRIB(**SERIALIZE_INT)] = None
 
 
+@dataclass
 class IndividualValueSet(XmlModel, regclass=AnIMLDocBase):
     """Multiple Values explicitly specified.
 
@@ -67,21 +71,25 @@ class IndividualValueSet(XmlModel, regclass=AnIMLDocBase):
             PNGType, StringType, SVGType]]): A set of Value elements.
     """
 
-    endIndex: Optional[int] = Field.Attribute(**SERIALIZE_INT)
-    startIndex: Optional[int] = Field.Attribute(**SERIALIZE_INT)
-    values: Optional[
-        List[
-            Union[
-                BooleanType,
-                DoubleType,
-                DateTimeType,
-                EmbeddedXmlType,
-                FloatType,
-                IntType,
-                LongType,
-                PNGType,
-                StringType,
-                SVGType,
+    values: Annotated[
+        Optional[
+            List[
+                Union[
+                    BooleanType,
+                    DoubleType,
+                    DateTimeType,
+                    EmbeddedXmlType,
+                    FloatType,
+                    IntType,
+                    LongType,
+                    PNGType,
+                    StringType,
+                    SVGType,
+                ]
             ]
-        ]
-    ] = Field.Child()
+        ],
+        CHILD,
+    ]
+
+    endIndex: Annotated[Optional[int], ATTRIB(**SERIALIZE_INT)] = None
+    startIndex: Annotated[Optional[int], ATTRIB(**SERIALIZE_INT)] = None

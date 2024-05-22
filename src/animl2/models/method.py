@@ -1,6 +1,7 @@
-from typing import Optional
+from dataclasses import dataclass
+from typing import Annotated, Optional
 
-from ..core import Field, XmlModel
+from ..core import ATTRIB, CHILD, XmlModel
 from ..utils.regex import NC_NAME
 from .author import Author
 from .base import AnIMLDocBase
@@ -9,6 +10,7 @@ from .device import Device
 from .software import Software
 
 
+@dataclass
 class Method(XmlModel, regclass=AnIMLDocBase):
     """
     Describes how this Experiment was performed.
@@ -26,11 +28,11 @@ class Method(XmlModel, regclass=AnIMLDocBase):
     """
 
     # Attributes
-    name: Optional[str] = Field.Attribute()
-    id: Optional[str] = Field.Attribute(regex=NC_NAME)
+    name: Annotated[Optional[str], ATTRIB]
+    id: Annotated[Optional[str], ATTRIB(regex=NC_NAME)]
 
     # Children
-    author: Optional[Author] = Field.Child()
-    device: Optional[Device] = Field.Child()
-    software: Optional[Software] = Field.Child()
-    category: Optional[Category] = Field.Child()
+    author: Annotated[Optional[Author], CHILD]
+    device: Annotated[Optional[Device], CHILD]
+    software: Annotated[Optional[Software], CHILD]
+    category: Annotated[Optional[Category], CHILD]

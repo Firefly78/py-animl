@@ -1,6 +1,7 @@
 import unittest
 import xml.etree.ElementTree as etree
-from typing import List, Optional, Set, Union
+from dataclasses import dataclass
+from typing import Annotated, List, Optional, Set, Union
 
 from helpers import create_dummy_regclass
 
@@ -16,18 +17,6 @@ class A:
 class B:
     "Test type 2"
     pass
-
-
-class TestGeneral(unittest.TestCase):
-    def test_Model(self):
-        A = "my_annotation_as_string"
-
-        class Model_A(XmlModel, regclass=create_dummy_regclass()):
-            # pylint: disable=reportUndefinedVariable
-            name: A = Field.Attribute()
-
-        self.assertEqual(Model_A._fields[0].name, "name")
-        self.assertEqual(Model_A._fields[0].annotation.tType, A)
 
 
 class TestPythonTypes(unittest.TestCase):
@@ -129,19 +118,26 @@ class TestUnionTypes(unittest.TestCase):
     def test_Model(self):
         regclass = create_dummy_regclass()
 
+        @dataclass
         class TestUnionTypesA(XmlModel, regclass=regclass):
             pass
 
+        @dataclass
         class TestUnionTypesB(XmlModel, regclass=regclass):
             pass
 
+        @dataclass
         class TestUnionTypesC(XmlModel, regclass=regclass):
             pass
 
+        @dataclass
         class UnionModel(XmlModel, regclass=regclass):
-            child_either_A_or_B: Union[
-                TestUnionTypesA, TestUnionTypesB, TestUnionTypesC
-            ] = Field.Child()
+            child_either_A_or_B: Annotated[
+                Optional[Union[TestUnionTypesA, TestUnionTypesB, TestUnionTypesC]],
+                Field.Child,
+            ] = None
+
+        UnionModel()  # Run to generate fields
 
         self.assertEqual(UnionModel._fields[0].name, "child_either_A_or_B")
         self.assertTrue(UnionModel._fields[0].annotation.validtype(TestUnionTypesA))
@@ -151,14 +147,17 @@ class TestUnionTypes(unittest.TestCase):
     def test_Load(self):
         regclass = create_dummy_regclass()
 
+        @dataclass
         class TestUnionTypesD(XmlModel, regclass=regclass):
             tag = "DD"
 
+        @dataclass
         class TestUnionTypesE(XmlModel, regclass=regclass):
             tag = "EE"
 
+        @dataclass
         class TestUnionLoadModel(XmlModel, regclass=regclass):
-            child: Union[TestUnionTypesD, TestUnionTypesE] = Field.Child()
+            child: Annotated[Union[TestUnionTypesD, TestUnionTypesE], Field.Child]
 
         xml1 = "<TestUnionLoadModel><DD/></TestUnionLoadModel>"
         TestUnionLoadModel.load_xml(etree.fromstring(xml1))

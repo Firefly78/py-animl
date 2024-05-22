@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import logging
-from copy import copy
 from enum import Enum
-from typing import Any, overload
+from typing import Any, _AnnotatedAlias, get_args, get_type_hints, overload
 from xml.etree import ElementTree as ET
 
 from .annotations import Annotation
@@ -48,27 +47,19 @@ class XmlMeta(type):
             raise TypeError("Regclass class is not a subclass of XmlDocBase")
 
         # Extract fields and tag details
-        fields = cls.extract_fields(attrs)
+        # fields = cls.extract_fields(attrs)
         tag = cls.get_tag(name, attrs)
 
         # Update static attributes
-        attrs["_fields"] = fields
+        # attrs["_fields"] = fields
         attrs["tag"] = tag
 
-        cls.check_restrictions(fields)
+        # cls.check_restrictions(fields)
 
         new_type: XmlModel = super().__new__(cls, name, bases, attrs)
         regclass.register(tag, new_type)  # Register class
         new_type.assign_regclass(regclass)  # Assign lookup class
         return new_type
-
-    @classmethod
-    def check_restrictions(cls, fields: list[Field.Base]):
-        """Check that the model follows all restrictions"""
-
-        # Check that there is at most one text field
-        if len(list(filter(lambda x: isinstance(x, Field.Text), fields))) > 1:
-            raise TypeError(f"Only one text field allowed ({cls.__name__})")
 
     @classmethod
     def extract_fields(cls, attrs: dict[str, Any]) -> list[Field.Base]:
@@ -118,10 +109,34 @@ class XmlDocBase:
             cls._static_dict = {}
         # if cls.__name__ == "key":
         #    return
-        if key in cls._static_dict and cls._static_dict[key] != value:
+        if key in cls._static_dict and not cls.equal(cls._static_dict[key], value):
             raise ValueError(f"Type '{key}' already registered")
         else:
             cls._static_dict[key] = value
+
+    @classmethod
+    def equal(cls, cls1: object, cls2: object):
+        """Check if two classes are equal"""
+
+        # Check if they are the same class
+        if cls1 is cls2:
+            return True  # We good
+
+        # Different modules?
+        if cls1.__module__ != cls2.__module__:
+            return False
+
+        # Different names?
+        if cls1.__name__ != cls2.__name__:
+            return False
+
+        # Different bases?
+        if len(cls1.__bases__) != len(cls2.__bases__) or any(
+            [x != y for x, y in zip(cls1.__bases__, cls2.__bases__)]
+        ):
+            return False
+
+        return True
 
 
 class XmlModel(metaclass=XmlMeta):
@@ -134,37 +149,60 @@ class XmlModel(metaclass=XmlMeta):
 
     tag: str = None  # Override in subclass if tag is different from class name
 
-    _fields: list[Field.Base] = list()
+    def __init__(self, *args, **kwargs):
+        raise Exception(
+            "This should not happen - did you forget the @dataclass decorator?"
+        )
 
-    def __init__(self, **kwargs) -> None:
-        """Default constructor, makes sure all fields are set to default or provided values"""
-        self._init_fields_(**kwargs)
+    def __post_init__(self) -> None:
+        type(self)._register_fields_()  # Initialize fields
 
-    def _init_fields_(self, **kwargs):
+        self._validate_fields_()  # Validate fields
+
+    @classmethod
+    def _check_restrictions_(cls, fields: list[Field.Base]):
+        """Check that the model follows all restrictions"""
+
+        # Check that there is at most one text field
+        if len(list(filter(lambda x: isinstance(x, Field.Text), fields))) > 1:
+            raise TypeError(f"Only one text field allowed ({cls.__name__})")
+
+    def _validate_fields_(self) -> None:
+        for i in self._fields:
+            name = i.name
+            value = getattr(self, name)
+            i.annotation.check_type_ex(value, name, type(self).get_registered_types())
+            i.validate_ex(value)
+
+    @classmethod
+    def _register_fields_(cls):
         """Helper function for initializing fields"""
-        kwargs = copy(kwargs)
 
-        # Set all fields to provided or default values
-        for i in self._fields:  # All fields
-            key = (
-                i.alias
-                if isinstance(i, Field.Attribute) and i.alias is not None
-                else i.name
-            )
-            if (
-                key not in kwargs
-                and not i.annotation.isOptional
-                and not i.has_default()
-            ):
-                raise KeyError(f"Missing parameter '{self.tag}.{key}'")
+        if hasattr(cls, "_fields_initialized"):
+            return
 
-            value = kwargs[key] if key in kwargs else i.get_default()
-            i.annotation.check_type_ex(
-                value, i.name, registered_types=type(self).get_registered_types()
-            )  # Type check
-            if value is not None:  # None check is handled by .annotation.check_type_ex
-                i.validate_ex(value)  # Field validation
-            setattr(self, i.name, value)
+        cls._fields: list[Field.Base] = []
+
+        # Build fields list
+        for name, annotation in get_type_hints(cls, include_extras=True).items():
+            if not isinstance(annotation, _AnnotatedAlias):
+                continue  # Skip non-annotated fields
+            args = get_args(annotation)
+            if len(args) < 2:
+                continue
+            _type, xtra, *_ = args
+            if not isinstance(xtra, Field.Base):
+                if issubclass(xtra, Field.Base):
+                    xtra = xtra()
+                else:
+                    continue  # Skip non-field annotations
+            xtra.name = name
+            xtra.annotation = Annotation.parse(_type)
+            cls._fields.append(xtra)
+
+        cls._check_restrictions_(cls._fields)
+
+        setattr(cls, "_fields_initialized", True)
 
     @overload
     @classmethod
@@ -189,6 +227,9 @@ class XmlModel(metaclass=XmlMeta):
 
     def dump_xml(self) -> ET.Element:
         """Dump this model and its children to an XML etree object"""
+
+        type(self)._register_fields_()  # Initialize fields
+
         x = ET.Element(self.tag)
 
         # Dump attributes
@@ -269,6 +310,9 @@ class XmlModel(metaclass=XmlMeta):
     @classmethod
     def load_xml(cls, x: ET.Element):
         """Create an XmlModel from an XML etree object"""
+
+        cls._register_fields_()  # Initialize fields
+
         # Check matching tag
         if x.tag != cls.tag:
             raise ValueError(f"Expected tag '{cls.tag}', got '{x.tag}'")
@@ -367,6 +411,8 @@ class XmlModel(metaclass=XmlMeta):
             txt = cls._get_fields_(Field.Text)[0]
         except IndexError:
             return arguments
+        except Exception as e:
+            raise e
 
         if x.text is None and not txt.annotation.isOptional:
             raise ValueError(f"Missing required text field '{x.tag}.{txt.name}'")

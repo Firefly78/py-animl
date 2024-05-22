@@ -1,13 +1,17 @@
 from __future__ import annotations
 
-from typing import Optional, Union
+from dataclasses import dataclass, field
+from typing import Annotated, Optional, Union
 
-from ..core import Field, XmlModel
+from animl2.core.fields import ATTRIB
+
+from ..core import CHILD, XmlModel
 from .base import AnIMLDocBase
 from .parameter import Parameter
 from .series import SeriesSet
 
 
+@dataclass
 class Category(XmlModel, regclass=AnIMLDocBase):
     """
     Defines a category of Parameters and SeriesSets. Used to model hierarchies.
@@ -24,12 +28,18 @@ class Category(XmlModel, regclass=AnIMLDocBase):
 
     """
 
-    name: str = Field.Attribute()
-    id: Optional[str] = Field.Attribute()
+    name: Annotated[str, ATTRIB]
+    id: Annotated[Optional[str], ATTRIB] = None
 
-    parameters: Optional[list[Parameter]] = Field.Child()
-    series_sets: Optional[list[SeriesSet]] = Field.Child()
-    sub_categories: Optional[list[Category]] = Field.Child()
+    parameters: Annotated[Optional[list[Parameter]], CHILD] = field(
+        default_factory=list
+    )
+    series_sets: Annotated[Optional[list[SeriesSet]], CHILD] = field(
+        default_factory=list
+    )
+    sub_categories: Annotated[Optional[list[Category]], CHILD] = field(
+        default_factory=list
+    )
 
     def append(self, item: Union[Parameter, SeriesSet, Category]):
         """Add and return a sub-item to this category"""

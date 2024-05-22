@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 from enum import Enum
-from typing import Optional
+from typing import Annotated, Optional
 
-from ..core import Field, XmlModel
+from ..core import ATTRIB, CHILD, TEXT, XmlModel
 from .base import AnIMLDocBase
 
 
+@dataclass
 class Unit(XmlModel, regclass=AnIMLDocBase):
     """
     Definition of a Scientific Unit.
@@ -19,10 +21,10 @@ class Unit(XmlModel, regclass=AnIMLDocBase):
         siunits (list[SIUnit]): Combination of SI Units used to represent Scientific Unit
     """
 
-    label: str = Field.Attribute()
-    quantity: Optional[str] = Field.Attribute()
+    label: Annotated[str, ATTRIB]
+    quantity: Annotated[Optional[str], ATTRIB] = None
 
-    siunits: Optional[list[SIUnit]] = Field.Child()
+    siunits: Annotated[Optional[list[SIUnit]], CHILD] = None
 
 
 class UnitText(str, Enum):
@@ -39,6 +41,7 @@ class UnitText(str, Enum):
 AnIMLDocBase.register(UnitText.__name__, UnitText)
 
 
+@dataclass
 class SIUnit(XmlModel, regclass=AnIMLDocBase):
     """
     Combination of SI Units used to represent Scientific Unit.
@@ -52,8 +55,8 @@ class SIUnit(XmlModel, regclass=AnIMLDocBase):
         unit (str): Unit of the SI Unit, (default: UnitText.Unitless)
     """
 
-    exponent: Optional[str] = Field.Attribute()
-    factor: Optional[str] = Field.Attribute()
-    offset: Optional[str] = Field.Attribute()
+    exponent: Annotated[Optional[str], ATTRIB] = None
+    factor: Annotated[Optional[str], ATTRIB] = None
+    offset: Annotated[Optional[str], ATTRIB] = None
 
-    unit: UnitText = Field.Text(default=UnitText.Unitless)
+    unit: Annotated[UnitText, TEXT] = field(default=UnitText.Unitless)

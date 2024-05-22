@@ -1,11 +1,13 @@
 from __future__ import annotations
 
-from typing import Optional
+from dataclasses import dataclass, field
+from typing import Annotated, Optional
 
-from ..core import Field, XmlModel
+from ..core import ATTRIB, CHILD, XmlModel
 from .base import AnIMLDocBase
 
 
+@dataclass
 class Tag(XmlModel, regclass=AnIMLDocBase):
     """
     Tag to mark related data items. When a value is given, it may also serve as a reference to an external data system.
@@ -16,14 +18,15 @@ class Tag(XmlModel, regclass=AnIMLDocBase):
 
     """
 
-    name: str = Field.Attribute()
-    value: Optional[str] = Field.Attribute()
+    name: Annotated[str, ATTRIB]
+    value: Annotated[Optional[str], ATTRIB]
 
 
+@dataclass
 class TagSet(XmlModel, regclass=AnIMLDocBase):
     """Set of Tag elements."""
 
-    tags: Optional[list[Tag]] = Field.Child(default_factory=list)
+    tags: Annotated[Optional[list[Tag]], CHILD] = field(default_factory=list)
 
     def append(self, tag: Tag):
         self.tags.append(tag)

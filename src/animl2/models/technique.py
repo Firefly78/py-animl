@@ -1,10 +1,12 @@
-from typing import Optional
+from dataclasses import dataclass
+from typing import Annotated, Optional
 
-from ..core import Field, XmlModel
+from ..core import ATTRIB, CHILD, XmlModel
 from ..utils.regex import NC_NAME
 from .base import AnIMLDocBase
 
 
+@dataclass
 class Extension(XmlModel, regclass=AnIMLDocBase):
     """
     Reference to an Extension to amend the active Technique Definition.
@@ -18,11 +20,12 @@ class Extension(XmlModel, regclass=AnIMLDocBase):
     """
 
     # Attributes
-    name: str = Field.Attribute()
-    uri: str = Field.Attribute()
-    sha256: Optional[str] = Field.Attribute()
+    name: Annotated[str, ATTRIB]
+    uri: Annotated[str, ATTRIB]
+    sha256: Annotated[Optional[str], ATTRIB]
 
 
+@dataclass
 class Technique(XmlModel, regclass=AnIMLDocBase):
     """
     Reference to Technique Definition used in this Experiment.
@@ -40,10 +43,10 @@ class Technique(XmlModel, regclass=AnIMLDocBase):
     """
 
     # Attributes
-    name: str = Field.Attribute()
-    uri: str = Field.Attribute()
-    id: Optional[str] = Field.Attribute(regex=NC_NAME)
-    sha256: Optional[str] = Field.Attribute()
+    name: Annotated[str, ATTRIB]
+    uri: Annotated[str, ATTRIB]
+    id: Annotated[Optional[str], ATTRIB(regex=NC_NAME)]
+    sha256: Annotated[Optional[str], ATTRIB]
 
     # Children
-    extensions: Optional[list[Extension]] = Field.Child()
+    extensions: Annotated[Optional[list[Extension]], CHILD]

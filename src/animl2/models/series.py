@@ -1,7 +1,8 @@
+from dataclasses import dataclass, field
 from enum import Enum
-from typing import List, Optional, Union
+from typing import Annotated, List, Optional, Union
 
-from ..core import Field, XmlModel
+from ..core import ATTRIB, CHILD, XmlModel
 from ..utils.regex import NC_NAME
 from .base import AnIMLDocBase
 from .data_type import SERIALIZE_BOOL, SERIALIZE_INT
@@ -28,6 +29,7 @@ class PlotScale(str, Enum):
 AnIMLDocBase.register(PlotScale.__name__, PlotScale)
 
 
+@dataclass
 class Series(XmlModel, regclass=AnIMLDocBase):
     """Container for multiple Values.
 
@@ -48,20 +50,22 @@ class Series(XmlModel, regclass=AnIMLDocBase):
         unit (Unit): The unit of measure for the data in this Series.
     """
 
-    name: str = Field.Attribute()
-    dependency: Dependency = Field.Attribute()
-    id: Optional[str] = Field.Attribute(regex=NC_NAME)
-    plotScale: Optional[PlotScale] = Field.Attribute()
-    seriesID: str = Field.Attribute()
-    seriesType: ParameterType = Field.Attribute()
-    visible: Optional[bool] = Field.Attribute(**SERIALIZE_BOOL)
+    name: Annotated[str, ATTRIB]
+    dependency: Annotated[Dependency, ATTRIB]
+    id: Annotated[Optional[str], ATTRIB(regex=NC_NAME)]
+    plotScale: Annotated[Optional[PlotScale], ATTRIB]
+    seriesID: Annotated[str, ATTRIB]
+    seriesType: Annotated[ParameterType, ATTRIB]
+    visible: Annotated[Optional[bool], ATTRIB(**SERIALIZE_BOOL)] = None
 
-    valuesets: Optional[
-        List[Union[AutoIncrementedValueSet, EncodedValueSet, IndividualValueSet]]
-    ] = Field.Child()
-    unit: Optional[Unit] = Field.Child()
+    valuesets: Annotated[
+        List[Union[AutoIncrementedValueSet, EncodedValueSet, IndividualValueSet]],
+        CHILD,
+    ] = field(default_factory=list)
+    unit: Annotated[Optional[Unit], CHILD] = None
 
 
+@dataclass
 class SeriesSet(XmlModel, regclass=AnIMLDocBase):
     """Container for n-dimensional Data.
 
@@ -76,8 +80,8 @@ class SeriesSet(XmlModel, regclass=AnIMLDocBase):
 
     """
 
-    name: str = Field.Attribute()
-    id: Optional[str] = Field.Attribute(regex=NC_NAME)
-    length: int = Field.Attribute(**SERIALIZE_INT)
+    name: Annotated[str, ATTRIB]
+    id: Annotated[Optional[str], ATTRIB(regex=NC_NAME)]
+    length: Annotated[int, ATTRIB(**SERIALIZE_INT)]
 
-    series: list[Series] = Field.Child()
+    series: Annotated[list[Series], CHILD]

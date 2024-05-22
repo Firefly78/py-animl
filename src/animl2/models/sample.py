@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from typing import Optional
+from dataclasses import dataclass, field
+from typing import Annotated, Optional
 
-from ..core import Field, XmlModel
+from ..core import ATTRIB, CHILD, XmlModel
 from ..utils.regex import NC_NAME
 from .base import AnIMLDocBase
 from .category import Category
@@ -15,6 +16,7 @@ SERIALIZE_BOOL = {
 }
 
 
+@dataclass
 class Sample(XmlModel, regclass=AnIMLDocBase):
     """
     Individual Sample, referenced from other parts of this AnIML document.
@@ -49,22 +51,22 @@ class Sample(XmlModel, regclass=AnIMLDocBase):
     """
 
     # Mandatory fields
-    name: str = Field.Attribute()
-    sampleID: str = Field.Attribute()
+    name: Annotated[str, ATTRIB]
+    sampleID: Annotated[str, ATTRIB]
 
     # Optional fields
-    barcode: Optional[str] = Field.Attribute()
-    comment: Optional[str] = Field.Attribute()
-    containerID: Optional[str] = Field.Attribute()
-    containerType: Optional[str] = Field.Attribute()
-    derived: Optional[bool] = Field.Attribute(**SERIALIZE_BOOL)
-    id: Optional[str] = Field.Attribute(regex=NC_NAME)
-    locationInContainer: Optional[str] = Field.Attribute()
-    sourceDataLocation: Optional[str] = Field.Attribute()
+    barcode: Annotated[Optional[str], ATTRIB] = None
+    comment: Annotated[Optional[str], ATTRIB] = None
+    containerID: Annotated[Optional[str], ATTRIB] = None
+    containerType: Annotated[Optional[str], ATTRIB] = None
+    derived: Annotated[Optional[bool], ATTRIB(**SERIALIZE_BOOL)] = None
+    id: Annotated[Optional[str], ATTRIB(regex=NC_NAME)] = None
+    locationInContainer: Annotated[Optional[str], ATTRIB] = None
+    sourceDataLocation: Annotated[Optional[str], ATTRIB] = None
 
     # Children
-    tag_set: Optional[TagSet] = Field.Child()
-    category: Optional[Category] = Field.Child()
+    tag_set: Annotated[Optional[TagSet], CHILD] = None
+    category: Annotated[Optional[Category], CHILD] = None
 
     def append(self, item: Tag):
         if self.tag_set is None:
@@ -72,6 +74,7 @@ class Sample(XmlModel, regclass=AnIMLDocBase):
         return self.tag_set.append(item)
 
 
+@dataclass
 class SampleSet(XmlModel, regclass=AnIMLDocBase):
     """
     Container for Samples used in this AnIML document.
@@ -85,10 +88,10 @@ class SampleSet(XmlModel, regclass=AnIMLDocBase):
     """
 
     # Optional fields
-    id: Optional[str] = Field.Attribute(regex=NC_NAME)
+    id: Annotated[Optional[str], ATTRIB(regex=NC_NAME)] = None
 
     # Children
-    samples: list[Sample] = Field.Child(default_factory=list)
+    samples: Annotated[list[Sample], CHILD] = field(default_factory=list)
 
     def append(self, sample: Sample):
         if self.samples is None:

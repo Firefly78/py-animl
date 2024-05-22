@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from typing import List, Optional
+from dataclasses import dataclass, field
+from typing import Annotated, List, Optional
 
-from ..core import Field, XmlModel
+from ..core import ATTRIB, CHILD, XmlModel
 from ..utils.regex import NC_NAME
 from .base import AnIMLDocBase
 from .category import Category
@@ -14,6 +15,7 @@ from .technique import Technique
 from .template import Template
 
 
+@dataclass
 class ExperimentStep(XmlModel, regclass=AnIMLDocBase):
     """
     Container that documents a step in an experiment. Use one ExperimentStep \
@@ -38,21 +40,22 @@ class ExperimentStep(XmlModel, regclass=AnIMLDocBase):
     """
 
     # Attributes
-    experimentStepID: str = Field.Attribute()
-    name: str = Field.Attribute()
-    comment: Optional[str] = Field.Attribute()
-    id: Optional[str] = Field.Attribute(regex=NC_NAME)
-    sourceDataLocation: Optional[str] = Field.Attribute()
-    templateUsed: Optional[str] = Field.Attribute()
+    experimentStepID: Annotated[str, ATTRIB] = field()
+    name: Annotated[str, ATTRIB] = field()
+    comment: Annotated[Optional[str], ATTRIB] = None
+    id: Annotated[Optional[str], ATTRIB(regex=NC_NAME)] = None
+    sourceDataLocation: Annotated[Optional[str], ATTRIB] = None
+    templateUsed: Annotated[Optional[str], ATTRIB] = None
 
     # Children
-    tag_set: Optional[TagSet] = Field.Child()
-    technique: Optional[Technique] = Field.Child()
-    infrastructure: Optional[Infrastructure] = Field.Child()
-    method: Optional[Method] = Field.Child()
-    result: Optional[list[Result]] = Field.Child()
+    tag_set: Annotated[Optional[TagSet], CHILD] = None
+    technique: Annotated[Optional[Technique], CHILD] = None
+    infrastructure: Annotated[Optional[Infrastructure], CHILD] = None
+    method: Annotated[Optional[Method], CHILD] = None
+    result: Annotated[Optional[list[Result]], CHILD] = None
 
 
+@dataclass
 class ExperimentStepSet(XmlModel, regclass=AnIMLDocBase):
     """
     Container for multiple ExperimentSteps that describe the process and results.
@@ -63,8 +66,10 @@ class ExperimentStepSet(XmlModel, regclass=AnIMLDocBase):
     """
 
     # Children
-    templates: list[Template] = Field.Child(default_factory=list)
-    experiment_steps: Optional[list[ExperimentStep]] = Field.Child(default_factory=list)
+    templates: Annotated[list[Template], CHILD] = field(default_factory=list)
+    experiment_steps: Annotated[Optional[list[ExperimentStep]], CHILD] = field(
+        default_factory=list
+    )
 
     def append(self, item: ExperimentStep) -> ExperimentStep:
         """Add and return an ExperimentStep to the set"""
@@ -72,6 +77,7 @@ class ExperimentStepSet(XmlModel, regclass=AnIMLDocBase):
         return item
 
 
+@dataclass
 class Result(XmlModel, regclass=AnIMLDocBase):
     """
     Container for Data derived from Experiment.
@@ -90,10 +96,10 @@ class Result(XmlModel, regclass=AnIMLDocBase):
     """
 
     # Attributes
-    id: Optional[str] = Field.Attribute(regex=NC_NAME)
-    name: str = Field.Attribute()
+    id: Annotated[Optional[str], ATTRIB(regex=NC_NAME)]
+    name: Annotated[str, ATTRIB]
 
     # Children
-    series: Optional[SeriesSet] = Field.Child()
-    category_set: Optional[List[Category]] = Field.Child()
-    experiment_step: Optional[ExperimentStepSet] = Field.Child()
+    series: Annotated[Optional[SeriesSet], CHILD]
+    category_set: Annotated[Optional[List[Category]], CHILD]
+    experiment_step: Annotated[Optional[ExperimentStepSet], CHILD]

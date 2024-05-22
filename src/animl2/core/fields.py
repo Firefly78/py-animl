@@ -23,16 +23,12 @@ class Field:
         def __init__(
             self,
             *,
-            default=None,
-            default_factory=None,
             on_serialize=None,
             on_deserialize=None,
             regex=None,
         ) -> None:
             if type(self) is Field.Base:
                 raise ("Field.Base cannot be directly instantiated")
-            self.default = default
-            self.default_factory = default_factory
             self.on_serialize = on_serialize
             self.on_deserialize = on_deserialize
             self.regex = regex
@@ -45,17 +41,6 @@ class Field:
                 return self.on_deserialize(value)
             return value
 
-        def get_default(self):
-            if self.default is not None:
-                return self.default
-            elif self.default_factory is not None:
-                return self.default_factory()
-            else:
-                return None
-
-        def has_default(self):
-            return self.default is not None or self.default_factory is not None
-
         def serialize(self, value: Any) -> Any:
             if self.on_serialize is not None:
                 return self.on_serialize(value)
@@ -63,7 +48,7 @@ class Field:
 
         def validate_ex(self, value: Any) -> Any:
             # Regex
-            if self.regex is not None:
+            if self.regex is not None and value is not None:
                 if not re.match(self.regex, value):
                     raise ValueError(f"{self.name} must match regex {self.regex}")
 
@@ -138,3 +123,8 @@ class Field:
 
         def __init__(self, **kwargs) -> None:
             super().__init__(**kwargs)
+
+
+ATTRIB = Field.Attribute
+CHILD = Field.Child
+TEXT = Field.Text

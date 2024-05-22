@@ -1,7 +1,8 @@
+from dataclasses import dataclass
 from enum import Enum
-from typing import Optional, Union
+from typing import Annotated, Optional, Union
 
-from ..core import Field, XmlModel
+from ..core import ATTRIB, CHILD, XmlModel
 from ..utils.regex import NC_NAME
 from .base import AnIMLDocBase
 from .data_type import DateTimeType, DoubleType, FloatType, IntType, LongType
@@ -15,6 +16,7 @@ class PurposeType(str, Enum):
 AnIMLDocBase.register(PurposeType.__name__, PurposeType)
 
 
+@dataclass
 class ExperimentDataReference(XmlModel, regclass=AnIMLDocBase):
     """
     Reference to an Experiment Step whose data are consumed.
@@ -29,12 +31,13 @@ class ExperimentDataReference(XmlModel, regclass=AnIMLDocBase):
     """
 
     # Attributes
-    dataPurpose: PurposeType = Field.Attribute()
-    experimentStepID: str = Field.Attribute()
-    id: Optional[str] = Field.Attribute(regex=NC_NAME)
-    role: str = Field.Attribute()
+    dataPurpose: Annotated[PurposeType, ATTRIB]
+    experimentStepID: Annotated[str, ATTRIB]
+    role: Annotated[str, ATTRIB]
+    id: Annotated[Optional[str], ATTRIB(regex=NC_NAME)] = None
 
 
+@dataclass
 class ExperimentDataBulkReference(XmlModel, regclass=AnIMLDocBase):
     """
     Prefix-based reference to a set of Experiment Steps whose data are consumed.
@@ -50,12 +53,13 @@ class ExperimentDataBulkReference(XmlModel, regclass=AnIMLDocBase):
     """
 
     # Attributes
-    dataPurpose: PurposeType = Field.Attribute()
-    experimentStepIDPrefix: str = Field.Attribute()
-    id: Optional[str] = Field.Attribute(regex=NC_NAME)
-    role: str = Field.Attribute()
+    dataPurpose: Annotated[PurposeType, ATTRIB]
+    experimentStepIDPrefix: Annotated[str, ATTRIB]
+    role: Annotated[str, ATTRIB]
+    id: Annotated[Optional[str], ATTRIB(regex=NC_NAME)] = None
 
 
+@dataclass
 class ExperimentDataReferenceSet(XmlModel, regclass=AnIMLDocBase):
     """
     Set of Experiment Steps consumed by this Experiment Step.
@@ -69,12 +73,12 @@ class ExperimentDataReferenceSet(XmlModel, regclass=AnIMLDocBase):
         experiment_bulk_reference_set (list(ExperimentDataBulkReference)): Collection of ExperimentDataBulkReferences
     """
 
-    id: Optional[str] = Field.Attribute(regex=NC_NAME)
+    experiment_reference_set: Annotated[list[ExperimentDataReference], CHILD]
+    experiment_bulk_reference_set: Annotated[list[ExperimentDataBulkReference], CHILD]
+    id: Annotated[Optional[str], ATTRIB(regex=NC_NAME)] = None
 
-    experiment_reference_set: list[ExperimentDataReference] = Field.Child()
-    experiment_bulk_reference_set: list[ExperimentDataBulkReference] = Field.Child()
 
-
+@dataclass
 class StartValue(XmlModel, regclass=AnIMLDocBase):
     """
     Lower boundary of an interval or ValueSet.
@@ -85,9 +89,10 @@ class StartValue(XmlModel, regclass=AnIMLDocBase):
     """
 
     # Children
-    value: Union[DoubleType, FloatType, IntType, LongType] = Field.Child()
+    value: Annotated[Union[DoubleType, FloatType, IntType, LongType], CHILD]
 
 
+@dataclass
 class EndValue(XmlModel, regclass=AnIMLDocBase):
     """
     Upper boundary of an interval or ValueSet.
@@ -98,9 +103,10 @@ class EndValue(XmlModel, regclass=AnIMLDocBase):
     """
 
     # Children
-    value: Union[DoubleType, FloatType, IntType, LongType] = Field.Child()
+    value: Annotated[Union[DoubleType, FloatType, IntType, LongType], CHILD]
 
 
+@dataclass
 class ParentDataPointReference(XmlModel, regclass=AnIMLDocBase):
     """
     Reference to a data point or value range in an independent Series in the parent Result.
@@ -116,14 +122,15 @@ class ParentDataPointReference(XmlModel, regclass=AnIMLDocBase):
     """
 
     # Attributes
-    id: Optional[str] = Field.Attribute(regex=NC_NAME)
-    seriesID: str = Field.Attribute()
+    id: Annotated[Optional[str], ATTRIB(regex=NC_NAME)]
+    seriesID: Annotated[str, ATTRIB]
 
     # Children
-    start_value: StartValue = Field.Child()
-    end_value: EndValue = Field.Child()
+    start_value: Annotated[StartValue, CHILD]
+    end_value: Annotated[EndValue, CHILD]
 
 
+@dataclass
 class ParentDataPointReferenceSet(XmlModel, regclass=AnIMLDocBase):
     """
     Contains references to the parent Result.
@@ -133,9 +140,10 @@ class ParentDataPointReferenceSet(XmlModel, regclass=AnIMLDocBase):
     """
 
     # Children
-    data_point_reference_set: list[ParentDataPointReference] = Field.Child()
+    data_point_reference_set: Annotated[list[ParentDataPointReference], CHILD]
 
 
+@dataclass
 class SampleReference(XmlModel, regclass=AnIMLDocBase):
     """
     Reference to a Sample used in this Experiment.
@@ -151,12 +159,13 @@ class SampleReference(XmlModel, regclass=AnIMLDocBase):
     """
 
     # Attributes
-    id: Optional[str] = Field.Attribute(regex=NC_NAME)
-    role: str = Field.Attribute()
-    sampleID: str = Field.Attribute()
-    samplePurpose: PurposeType = Field.Attribute()
+    role: Annotated[str, ATTRIB]
+    sampleID: Annotated[str, ATTRIB]
+    samplePurpose: Annotated[PurposeType, ATTRIB]
+    id: Annotated[Optional[str], ATTRIB(regex=NC_NAME)] = None
 
 
+@dataclass
 class SampleInheritance(XmlModel, regclass=AnIMLDocBase):
     """
     Indicates that a Sample was inherited from the parent ExperimentStep.
@@ -170,11 +179,12 @@ class SampleInheritance(XmlModel, regclass=AnIMLDocBase):
     """
 
     # Attributes
-    id: Optional[str] = Field.Attribute(regex=NC_NAME)
-    role: str = Field.Attribute()
-    samplePurpose: PurposeType = Field.Attribute()
+    role: Annotated[str, ATTRIB]
+    samplePurpose: Annotated[PurposeType, ATTRIB]
+    id: Annotated[Optional[str], ATTRIB(regex=NC_NAME)] = None
 
 
+@dataclass
 class SampleReferenceSet(XmlModel, regclass=AnIMLDocBase):
     """
     Set of Samples used in this Experiment.
@@ -188,14 +198,15 @@ class SampleReferenceSet(XmlModel, regclass=AnIMLDocBase):
         sample_inheritances (list(SampleInheritance)): Collection of SampleInheritances
     """
 
-    # Attributes
-    id: Optional[str] = Field.Attribute(regex=NC_NAME)
-
     # Children
-    sample_references: Optional[list[SampleReference]] = Field.Child()
-    sample_inheritances: Optional[list[SampleInheritance]] = Field.Child()
+    sample_references: Annotated[Optional[list[SampleReference]], CHILD]
+    sample_inheritances: Annotated[Optional[list[SampleInheritance]], CHILD]
+
+    # Attributes
+    id: Annotated[Optional[str], ATTRIB(regex=NC_NAME)] = None
 
 
+@dataclass
 class Infrastructure(XmlModel, regclass=AnIMLDocBase):
     """
     Contains references to the context of this Experiment.
@@ -213,10 +224,14 @@ class Infrastructure(XmlModel, regclass=AnIMLDocBase):
     """
 
     # Attributes
-    id: Optional[str] = Field.Attribute(regex=NC_NAME)
+    id: Annotated[Optional[str], ATTRIB(regex=NC_NAME)] = None
 
     # Children
-    sample_reference_set: Optional[SampleReferenceSet] = Field.Child()
-    parent_datapoint_refence_set: Optional[ParentDataPointReferenceSet] = Field.Child()
-    experiment_data_reference_set: Optional[ExperimentDataReferenceSet] = Field.Child()
-    time_stamp: Optional[DateTimeType] = Field.Child()
+    sample_reference_set: Annotated[Optional[SampleReferenceSet], CHILD] = None
+    parent_datapoint_refence_set: Annotated[
+        Optional[ParentDataPointReferenceSet], CHILD
+    ] = None
+    experiment_data_reference_set: Annotated[
+        Optional[ExperimentDataReferenceSet], CHILD
+    ] = None
+    time_stamp: Annotated[Optional[DateTimeType], CHILD] = None

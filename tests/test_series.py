@@ -12,7 +12,7 @@ class TestSeriesSet(unittest.TestCase):
             name="Series 1",
             dependency=Dependency.Independent,
             id="c1234",
-            PlotScale=PlotScale.Linear,
+            plotScale=PlotScale.Linear,
             seriesID="b1234",
             seriesType=ParameterType.Int32,
             visible=True,

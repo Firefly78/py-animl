@@ -1,10 +1,12 @@
-from typing import Optional
+from dataclasses import dataclass
+from typing import Annotated, Optional
 
-from ..core import Field, XmlModel
+from ..core import CHILD, TEXT, XmlModel
 from .base import AnIMLDocBase
 from .common import Manufacturer, Name
 
 
+@dataclass
 class OperatingSystem(XmlModel, regclass=AnIMLDocBase):
     """
     Operating system the software was running on.
@@ -14,9 +16,10 @@ class OperatingSystem(XmlModel, regclass=AnIMLDocBase):
     """
 
     # Text
-    value: str = Field.Text()
+    value: Annotated[str, TEXT]
 
 
+@dataclass
 class Version(XmlModel, regclass=AnIMLDocBase):
     """
     Version identifier of software release.
@@ -26,9 +29,10 @@ class Version(XmlModel, regclass=AnIMLDocBase):
     """
 
     # Text
-    value: str = Field.Text()
+    value: Annotated[str, TEXT]
 
 
+@dataclass
 class Software(XmlModel, regclass=AnIMLDocBase):
     """
     Software used to author this.
@@ -41,7 +45,7 @@ class Software(XmlModel, regclass=AnIMLDocBase):
     """
 
     # Children
-    name: Name = Field.Child()
-    manufacturer: Manufacturer = Field.Child()
-    version: Optional[Version] = Field.Child()
-    operating_system: Optional[OperatingSystem] = Field.Child()
+    name: Annotated[Name, CHILD]
+    manufacturer: Annotated[Manufacturer, CHILD]
+    version: Annotated[Optional[Version], CHILD]
+    operating_system: Annotated[Optional[OperatingSystem], CHILD]

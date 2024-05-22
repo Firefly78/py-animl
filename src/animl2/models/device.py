@@ -1,10 +1,12 @@
-from typing import Optional
+from dataclasses import dataclass
+from typing import Annotated, Optional
 
-from ..core import Field, XmlModel
+from ..core import ATTRIB, CHILD, TEXT, XmlModel
 from .base import AnIMLDocBase
 from .common import Manufacturer, Name
 
 
+@dataclass
 class DeviceIdentifier(XmlModel, regclass=AnIMLDocBase):
     """
     Unique name or identifier of the device.
@@ -14,9 +16,10 @@ class DeviceIdentifier(XmlModel, regclass=AnIMLDocBase):
     """
 
     # Text
-    value: str = Field.Attribute()
+    value: Annotated[str, ATTRIB]
 
 
+@dataclass
 class FirmwareVersion(XmlModel, regclass=AnIMLDocBase):
     """
     Version identifier of firmware release.
@@ -26,9 +29,10 @@ class FirmwareVersion(XmlModel, regclass=AnIMLDocBase):
     """
 
     # Text
-    value: str = Field.Text()
+    value: Annotated[str, TEXT]
 
 
+@dataclass
 class SerialNumber(XmlModel, regclass=AnIMLDocBase):
     """
     Unique serial number of device
@@ -38,9 +42,10 @@ class SerialNumber(XmlModel, regclass=AnIMLDocBase):
     """
 
     # Text
-    value: str = Field.Text()
+    value: Annotated[str, TEXT]
 
 
+@dataclass
 class Device(XmlModel, regclass=AnIMLDocBase):
     """
     Device used to perform experiment.
@@ -55,8 +60,8 @@ class Device(XmlModel, regclass=AnIMLDocBase):
     """
 
     # Children
-    identifier: Optional[DeviceIdentifier] = Field.Child()
-    manufacturer: Optional[Manufacturer] = Field.Child()
-    name: Name = Field.Child()
-    firmware: Optional[FirmwareVersion] = Field.Child()
-    serialNumber: Optional[SerialNumber] = Field.Child()
+    identifier: Annotated[Optional[DeviceIdentifier], CHILD]
+    manufacturer: Annotated[Optional[Manufacturer], CHILD]
+    name: Annotated[Name, CHILD]
+    firmware: Annotated[Optional[FirmwareVersion], CHILD]
+    serialNumber: Annotated[Optional[SerialNumber], CHILD]

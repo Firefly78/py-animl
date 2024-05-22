@@ -1,6 +1,8 @@
 import unittest
 import xml.etree.ElementTree as etree
+from dataclasses import dataclass, field
 from enum import Enum
+from typing import Annotated
 
 from helpers import create_dummy_regclass
 
@@ -19,22 +21,10 @@ class TestAttribute(unittest.TestCase):
             lambda: Field.Attribute(alias=1),
         )
 
-    def test_Default(self):
-        tests = [
-            ({}, None, "No default"),
-            ({"default": "def-1"}, "def-1", "Default as value"),
-            ({"default_factory": lambda: "def-1"}, "def-1", "Default as factory"),
-        ]
-
-        for test in tests:
-            with self.subTest(test=test[2]):
-                field = Field.Attribute(**test[0])
-                self.assertEqual(field.has_default(), test[1] is not None)
-                self.assertEqual(field.get_default(), test[1])
-
     def test_Validate_Dump(self):
+        @dataclass
         class A_ValidateDump(XmlModel, regclass=create_dummy_regclass()):
-            value: str = Field.Attribute(regex=NC_NAME)
+            value: Annotated[str, Field.Attribute(regex=NC_NAME)]
 
         # OK
         A_ValidateDump(value="good-value").dump_xml()
@@ -46,8 +36,9 @@ class TestAttribute(unittest.TestCase):
         )
 
     def test_Validate_Init(self):
+        @dataclass
         class A_ValidateInit(XmlModel, regclass=create_dummy_regclass()):
-            value: str = Field.Attribute(regex=NC_NAME)
+            value: Annotated[str, Field.Attribute(regex=NC_NAME)]
 
         # OK
         A_ValidateInit(value="good-value")
@@ -59,8 +50,9 @@ class TestAttribute(unittest.TestCase):
         )
 
     def test_Validate_Load(self):
+        @dataclass
         class A_ValidateLoad(XmlModel, regclass=create_dummy_regclass()):
-            value: str = Field.Attribute(regex=NC_NAME)
+            value: Annotated[str, Field.Attribute(regex=NC_NAME)]
 
         # OK
         A_ValidateLoad.load_xml(
@@ -80,36 +72,6 @@ class TestBase(unittest.TestCase):
     def test_ABC(self):
         self.assertRaises(TypeError, lambda: Field.Base())
 
-
-class TestChild(unittest.TestCase):
-    def test_Default(self):
-        tests = [
-            ({}, None, "No default"),
-            ({"default": XmlModel}, XmlModel, "Default as value"),
-            ({"default_factory": lambda: XmlModel}, XmlModel, "Default as factory"),
-        ]
-
-        for test in tests:
-            with self.subTest(test=test[2]):
-                field = Field.Child(**test[0])
-                self.assertEqual(field.has_default(), test[1] is not None)
-                self.assertEqual(field.get_default(), test[1])
-
-
-class TestText(unittest.TestCase):
-    def test_Default(self):
-        tests = [
-            ({}, None, "No default"),
-            ({"default": "def-1"}, "def-1", "Default as value"),
-            ({"default_factory": lambda: "def-1"}, "def-1", "Default as factory"),
-        ]
-
-        for test in tests:
-            with self.subTest(test=test[2]):
-                field = Field.Text(**test[0])
-                self.assertEqual(field.has_default(), test[1] is not None)
-                self.assertEqual(field.get_default(), test[1])
-
     def test_Enum_Deserialize(self):
         class MyEnumED(str, Enum):
             VALUE1 = "this-is-my-text"
@@ -118,8 +80,9 @@ class TestText(unittest.TestCase):
 
         regclass.register(MyEnumED.__name__, MyEnumED)
 
+        @dataclass
         class B(XmlModel, regclass=regclass):
-            value: MyEnumED = Field.Text()
+            value: Annotated[MyEnumED, Field.Text()]
 
         xml_string = "<B>this-is-my-text</B>"
         root = etree.fromstring(xml_string)
@@ -133,8 +96,9 @@ class TestText(unittest.TestCase):
         regclass = create_dummy_regclass()
         regclass.register(MyEnumEDE.__name__, MyEnumEDE)
 
+        @dataclass
         class B2(XmlModel, regclass=regclass):
-            value: MyEnumEDE = Field.Text()
+            value: Annotated[MyEnumEDE, Field.Text]
 
         xml_string = "<B2>bad-string</B2>"
         root = etree.fromstring(xml_string)
@@ -147,8 +111,9 @@ class TestText(unittest.TestCase):
         regclass = create_dummy_regclass()
         regclass.register(MyEnumES.__name__, MyEnumES)
 
+        @dataclass
         class ES(XmlModel, regclass=regclass):
-            value: MyEnumES = Field.Text()  # Use enum as field
+            value: Annotated[MyEnumES, Field.Text()]  # Use enum as field
 
         m = ES(value=MyEnumES.VALUE1)
 
@@ -163,16 +128,18 @@ class TestText(unittest.TestCase):
         regclass = create_dummy_regclass()
         regclass.register(MyEnumESE.__name__, MyEnumESE)
 
+        @dataclass
         class ESE(XmlModel, regclass=regclass):
-            value: MyEnumESE = Field.Text()  # Use enum as field
+            value: Annotated[MyEnumESE, Field.Text()]  # Use enum as field
 
         m = ESE(value=MyEnumESE.VALUE1)
 
         self.assertRaisesRegex(TypeError, "Type must be string", lambda: m.dump_xml())
 
     def test_Validate_Dump(self):
+        @dataclass
         class A_ValidateTDump(XmlModel, regclass=create_dummy_regclass()):
-            value: str = Field.Text(regex=NC_NAME)
+            value: Annotated[str, Field.Text(regex=NC_NAME)]
 
         # OK
         A_ValidateTDump(value="good-value").dump_xml()
@@ -184,8 +151,9 @@ class TestText(unittest.TestCase):
         )
 
     def test_Validate_Init(self):
+        @dataclass
         class A_ValidateTInit(XmlModel, regclass=create_dummy_regclass()):
-            value: str = Field.Text(regex=NC_NAME)
+            value: Annotated[str, Field.Text(regex=NC_NAME)]
 
         # OK
         A_ValidateTInit(value="good-value")
@@ -197,8 +165,9 @@ class TestText(unittest.TestCase):
         )
 
     def test_Validate_Load(self):
+        @dataclass
         class A_ValidateTLoad(XmlModel, regclass=create_dummy_regclass()):
-            value: str = Field.Text(regex=NC_NAME)
+            value: Annotated[str, Field.Text(regex=NC_NAME)]
 
         # OK
         A_ValidateTLoad.load_xml(
