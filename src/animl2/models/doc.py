@@ -13,15 +13,22 @@ from .sample import Sample, SampleSet
 VERSION: str = "0.90"
 XMLNS: str = "urn:org:astm:animl:schema:core:draft:0.90"
 XMLNS_XSI: str = "http://www.w3.org/2001/XMLSchema-instance"
-XSI_SCHEMALOCATION: str = (
-    "urn:org:astm:animl:schema:core:draft:0.90 http://schemas.animl.org/current/animl-core.xsd"
-)
+XSI_SCHEMALOCATION: str = XMLNS + " http://schemas.animl.org/current/animl-core.xsd"
 
 
 @dataclass
 class AnIMLDoc(XmlModel, regclass=AnIMLDocBase):
     """
     Root Element for AnIML documents.
+
+    ```xml
+    <AnIML ...>
+        <SampleSet>...</SampleSet>
+        <ExperimentStepSet>...</ExperimentStepSet>
+        <!-- Audit Trail -->
+        <!-- Signatures -->
+    </AnIML>
+    ```
 
     Attributes:
         version (str): Version of AnIML
@@ -32,7 +39,8 @@ class AnIMLDoc(XmlModel, regclass=AnIMLDocBase):
     Children:
         sample_set (optional(SampleSet)): Collection of Samples
         experiment_set (optional(ExperimentStepSet)): Collection of Experiment Steps
-        TODO: Add more children
+
+    TODO: Add audit_trail_entry_set and signature_set
 
     """
 
@@ -49,8 +57,8 @@ class AnIMLDoc(XmlModel, regclass=AnIMLDocBase):
     # Children
     sample_set: Annotated[Optional[SampleSet], CHILD] = None
     experiment_set: Annotated[Optional[ExperimentStepSet], CHILD] = None
-    # audit_trail_entry_set: Optional[AuditTrailEntrySet] = CHILD()
-    # signature_set: Optional[SignatureSet] = CHILD()
+    # audit_trail_entry_set: Annotated[Optional[AuditTrailEntrySet], CHILD]
+    # signature_set: Annotated[Optional[SignatureSet], CHILD]
 
     @classmethod
     def loads(cls, xml: Union[IO, str]) -> AnIMLDoc:

@@ -21,6 +21,13 @@ class Sample(XmlModel, regclass=AnIMLDocBase):
     """
     Individual Sample, referenced from other parts of this AnIML document.
 
+    ```xml
+    <Sample name="My Sample" sampleID="my_id" ...>
+        <TagSet>...</TagSet>
+        <Category>...</Category>
+    </Sample>
+    ```
+
     Attributes:
         name (str): Plain-text name of this item.
         sampleID (str): Token with up to 1024 characters
@@ -78,6 +85,14 @@ class Sample(XmlModel, regclass=AnIMLDocBase):
 class SampleSet(XmlModel, regclass=AnIMLDocBase):
     """
     Container for Samples used in this AnIML document.
+
+    ```xml
+    <SampleSet id="my_id">
+        <Sample .../>
+        <Sample .../>
+        ...
+    </SampleSet>
+    ```
 
     Attributes:
         id (str): Anchor point for digital signature. This identifier is referred \
