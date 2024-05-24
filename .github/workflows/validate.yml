@@ -5,9 +5,8 @@ name: Python package
 
 on:
   push:
-    branches: [ "main" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [main]
 
 jobs:
   build:
@@ -39,7 +38,7 @@ jobs:
         black --check --verbose ./src
     - name: Check imports with isort
       run: |
-        isort --check --verbose
+        isort --check --verbose ./src
     - name: Test with pytest
       run: |
         pytest ./tests/
