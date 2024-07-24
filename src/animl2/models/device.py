@@ -21,7 +21,7 @@ class DeviceIdentifier(XmlModel, regclass=AnIMLDocBase):
     """
 
     # Text
-    value: Annotated[str, ATTRIB]
+    value: Annotated[str, TEXT]
 
 
 @dataclass
