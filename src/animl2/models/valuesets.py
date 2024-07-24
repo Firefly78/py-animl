@@ -72,20 +72,18 @@ class IndividualValueSet(XmlModel, regclass=AnIMLDocBase):
     """
 
     values: Annotated[
-        Optional[
-            List[
-                Union[
-                    BooleanType,
-                    DoubleType,
-                    DateTimeType,
-                    EmbeddedXmlType,
-                    FloatType,
-                    IntType,
-                    LongType,
-                    PNGType,
-                    StringType,
-                    SVGType,
-                ]
+        List[
+            Union[
+                BooleanType,
+                DoubleType,
+                DateTimeType,
+                EmbeddedXmlType,
+                FloatType,
+                IntType,
+                LongType,
+                PNGType,
+                StringType,
+                SVGType,
             ]
         ],
         CHILD,
