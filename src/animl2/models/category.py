@@ -3,9 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Annotated, Optional, TypeVar, Union, overload
 
-from animl2.core.fields import ATTRIB
-
-from ..core import CHILD, XmlModel
+from ..core import ATTRIB, CHILD, XmlModel
 from .base import AnIMLDocBase
 from .parameter import Parameter
 from .series import SeriesSet
