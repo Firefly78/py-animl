@@ -13,12 +13,17 @@ class Unit(XmlModel, regclass=AnIMLDocBase):
     """
     Definition of a Scientific Unit.
 
+    ```xml
+    <Unit label="..." quantity="...">
+        <SIUnit unit="..."/>
+    </Unit>
+    ```
+
     Attributes:
         label (str): Defines the visual representation of a particular Unit.
-        quantity (str): Quantity the unit can be applied to
+        quantity (str | None): Quantity the unit can be applied to
 
-    Children:
-        siunits (list[SIUnit]): Combination of SI Units used to represent Scientific Unit
+        siunits (list[SIUnit] | None): Combination of SI Units used to represent Scientific Unit
     """
 
     label: Annotated[str, ATTRIB]
@@ -46,13 +51,17 @@ class SIUnit(XmlModel, regclass=AnIMLDocBase):
     """
     Combination of SI Units used to represent Scientific Unit.
 
-    Attributes:
-        exponent (Optional[str]): Exponent of the SI Unit
-        factor (Optional[str]): Factor of the SI Unit
-        offset (Optional[str]): Offset of the SI Unit
+    ```xml
+    <SIUnit exponent="..." factor="..." offset="...">cd</SIUnit>
 
-    Children:
-        unit (str): Unit of the SI Unit, (default: UnitText.Unitless)
+    ```
+
+    Attributes:
+        exponent (str | None): Exponent of the SI Unit
+        factor (str | None): Factor of the SI Unit
+        offset (str | None): Offset of the SI Unit
+
+        unit (UnitText): Unit of the SI Unit, (default: UnitText.Unitless)
     """
 
     exponent: Annotated[Optional[str], ATTRIB] = None

@@ -32,27 +32,26 @@ class Sample(XmlModel, regclass=AnIMLDocBase):
         name (str): Plain-text name of this item.
         sampleID (str): Token with up to 1024 characters
 
-        barcode (str): Value of barcode label that is attached to sample container.
-        comment (str): Unstructured text comment to further describe the Sample.
-        containerID (str): Sample ID of container in which this sample is located.
-        containerType (str): Whether this sample is also a container for other samples. \
+        barcode (str | None): Value of barcode label that is attached to sample container.
+        comment (str | None): Unstructured text comment to further describe the Sample.
+        containerID (str | None): Sample ID of container in which this sample is located.
+        containerType (str | None): Whether this sample is also a container for other samples. \
                 Set to "simple" if not.
-        derived (bool): Indicates whether this is a derived Sample. A derived Sample \
+        derived (bool | None): Indicates whether this is a derived Sample. A derived Sample \
                 is a Sample that has been created by applying a Technique. \
                 (Sub-Sampling, Processing, ...).
-        id (str): Anchor point for digital signature. This identifier is referred \
+        id (str | None): Anchor point for digital signature. This identifier is referred \
                 to from the "Reference" element in a Signature. Unique per document.
-        locationInContainer (str): Coordinates of this sample within the enclosing \
+        locationInContainer (str | None): Coordinates of this sample within the enclosing \
                 container. In case of microplates or trays, the row is identified \
                 by letters and the column is identified by numbers (1-based) while \
                 in landscape orientation. Examples: A10 = 1st row, 10th column, \
                 Z1 = 26th row, 1st column, AB2 = 28th row, 2nd column.
-        sourceDataLocation (str): Points to the original data source. May be a \
+        sourceDataLocation (str | None): Points to the original data source. May be a \
                 file name, uri, database ID, etc.
 
-    Children:
-        tag_set (TagSet): Set of Tag elements.
-        category (Category): Defines a category of Parameters and SeriesSets. Used \
+        tag_set (TagSet | None): Set of Tag elements.
+        category (Category | None): Defines a category of Parameters and SeriesSets. Used \
                 to model hierarchies.
 
     """
@@ -87,7 +86,7 @@ class SampleSet(XmlModel, regclass=AnIMLDocBase):
     Container for Samples used in this AnIML document.
 
     ```xml
-    <SampleSet id="my_id">
+    <SampleSet id="...">
         <Sample .../>
         <Sample .../>
         ...
@@ -95,10 +94,9 @@ class SampleSet(XmlModel, regclass=AnIMLDocBase):
     ```
 
     Attributes:
-        id (str): Anchor point for digital signature. This identifier is referred \
+        id (str | None): Anchor point for digital signature. This identifier is referred \
               to from the "Reference" element in a Signature. Unique per document.
 
-    Children:
         samples (list[Sample]): Individual Samples
     """
 

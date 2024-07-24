@@ -10,7 +10,12 @@ class Name(XmlModel, regclass=AnIMLDocBase):
     """
     Common name.
 
-    Text:
+    ```xml
+    <Name>...</Name>
+
+    ```
+
+    Attributes:
         value (str): Name value
 
     """
@@ -24,7 +29,12 @@ class Manufacturer(XmlModel, regclass=AnIMLDocBase):
     """
     Company name.
 
-    Text:
+    ```xml
+    <Manufacturer>...</Manufacturer>
+
+    ```
+
+    Attributes:
         value (str): Manufacturer value
     """
 

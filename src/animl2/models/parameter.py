@@ -43,20 +43,26 @@ class Parameter(XmlModel, regclass=AnIMLDocBase):
     """
     Name/Value Pair.
 
+    ```xml
+    <Parameter name="..." parameterType="..." id="...">
+        <F>...</F> 
+        <Unit .../>
+    </Parameter>
+    ```
+
     Attributes:
         name (str): Plain-text name of this item.
         parameterType (str): Data type of this parameter
-        id (str): Anchor point for digital signature. This identifier is referred \
+        id (str | None): Anchor point for digital signature. This identifier is referred \
                 to from the "Reference" element in a Signature. Unique per document.
-
-    Children:
-        value: (??): Individual value
-        unit (Unit): Definition of a Scientific Unit.
+        value (BooleanType | DoubleType | DateTimeType | ...): Individual value
+        unit (Unit | None): Definition of a Scientific Unit.
 
     """
 
     name: Annotated[str, ATTRIB]
     parameterType: Annotated[ParameterType, ATTRIB]
+    id: Annotated[Optional[str], ATTRIB(regex=NC_NAME)] = None
 
     value: Annotated[
         Optional[

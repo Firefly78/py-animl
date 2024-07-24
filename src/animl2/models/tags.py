@@ -12,9 +12,14 @@ class Tag(XmlModel, regclass=AnIMLDocBase):
     """
     Tag to mark related data items. When a value is given, it may also serve as a reference to an external data system.
 
+    ```xml
+    <Tag name="..." value="..."/>
+
+    ```
+
     Attributes:
         name (str): Token with up to 1024 characters
-        value (str): String with up to 1024 characters
+        value (str | None): String with up to 1024 characters
 
     """
 
@@ -24,7 +29,20 @@ class Tag(XmlModel, regclass=AnIMLDocBase):
 
 @dataclass
 class TagSet(XmlModel, regclass=AnIMLDocBase):
-    """Set of Tag elements."""
+    """
+    Set of Tag elements.
+
+    ```xml
+    <TagSet>
+        <Tag name="..." value="..."/>
+    </TagSet>
+    ```
+
+    Attributes:
+        tags (list[Tag] | None): List of Tag elements
+
+
+    """
 
     tags: Annotated[Optional[list[Tag]], CHILD] = field(default_factory=list)
 

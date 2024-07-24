@@ -11,7 +11,12 @@ class OperatingSystem(XmlModel, regclass=AnIMLDocBase):
     """
     Operating system the software was running on.
 
-    Text:
+    ```xml
+    <OperatingSystem>...</OperatingSystem>
+
+    ```
+
+    Attributes:
         value (str): Operating system value
     """
 
@@ -24,7 +29,12 @@ class Version(XmlModel, regclass=AnIMLDocBase):
     """
     Version identifier of software release.
 
-    Text:
+    ```xml
+    <Version>...</Version>
+
+    ```
+
+    Attributes:
         value (str): Version value
     """
 
@@ -37,11 +47,20 @@ class Software(XmlModel, regclass=AnIMLDocBase):
     """
     Software used to author this.
 
-    Children:
+    ```xml
+    <Software>
+        <Name>...</Name>
+        <Manufacturer>...</Manufacturer>
+        <Version>...</Version>
+        <OperatingSystem>...</OperatingSystem>
+    </Software>
+    ```
+
+    Attributes:
         name (Name): Common name.
         manufacturer (Manufacturer): Company name.
-        version (optional(Version)): Version identifier of software release.
-        operating_system (optional(OperatingSystem)): Operating system the software was running on.
+        version (Version | None): Version identifier of software release.
+        operating_system (OperatingSystem | None): Operating system the software was running on.
     """
 
     # Children

@@ -20,22 +20,30 @@ class ExperimentStep(XmlModel, regclass=AnIMLDocBase):
     Container that documents a step in an experiment. Use one ExperimentStep \
         per application of a Technique.
 
+    ```xml
+    <ExperimentStep experimentStepID="..." name="...">
+        <TagSet .../>
+        <Technique .../>
+        <Infrastructure .../>
+        <Method .../>
+        <Result .../>
+    </ExperimentStep>
+    ```
+
     Attributes:
         experimentStepID (str): Unique identifier for this ExperimentStep. Used to \
             point to this step from an ExperimentDataReference.
         name (str): Plain-text name of this item.
-        comment (str): Unstructured text comment to further describe the ExperimentStep.
-        id (str): Anchor point for digital signature. This identifier is referred to \
+        comment (str | None): Unstructured text comment to further describe the ExperimentStep.
+        id (str | None): Anchor point for digital signature. This identifier is referred to \
             from the "Reference" element in a Signature. Unique per document.
-        sourceDataLocation (str): Points to the original data source. May be a file name, uri, database ID, etc.
-        templateUsed (str): Token with up to 1024 characters
-
-    Children:
-        tag_set (optional(TagSet)): Collection of Tags
-        technique (optional(Technique)): Technique used
-        infrastructure (optional(Infrastructure)): Infrastructure used
-        method (optional(Method)): Method used in this step
-        result (optional(list(Result))): Collection of Results
+        sourceDataLocation (str | None): Points to the original data source. May be a file name, uri, database ID, etc.
+        templateUsed (str | None): Token with up to 1024 characters
+        tag_set (TagSet | None): Collection of Tags
+        technique (Technique | None): Technique used
+        infrastructure (Infrastructure | None): Infrastructure used
+        method (Method | None): Method used in this step
+        result (list[Result] | None): Collection of Results
     """
 
     # Attributes
@@ -59,13 +67,22 @@ class ExperimentStepSet(XmlModel, regclass=AnIMLDocBase):
     """
     Container for multiple ExperimentSteps that describe the process and results.
 
-    Children:
-        templates (optional(list(Template))): Collection of Templates
-        experiment_steps (list(ExperimentStep)): Collection of ExperimentSteps
+    ```xml
+    <ExperimentStepSet>
+        <Template .../>
+        <Template .../>
+        <ExperimentStep .../>
+        <ExperimentStep .../>
+    </ExperimentStepSet>
+    ```
+
+    Attributes:
+        templates (list[Template] | None): Collection of Templates
+        experiment_steps (list[ExperimentStep] | None): Collection of ExperimentSteps
     """
 
     # Children
-    templates: Annotated[list[Template], CHILD] = field(default_factory=list)
+    templates: Annotated[Optional[list[Template]], CHILD] = field(default_factory=list)
     experiment_steps: Annotated[Optional[list[ExperimentStep]], CHILD] = field(
         default_factory=list
     )
@@ -81,15 +98,21 @@ class Result(XmlModel, regclass=AnIMLDocBase):
     """
     Container for Data derived from Experiment.
 
+    ```xml
+    <Result id="..." name="...">
+        <SeriesSet .../>
+        <Category .../>
+        <ExperimentStepSet .../>
+    </Result>
+    ```
+
     Attributes:
         id (str): Anchor point for digital signature. This identifier \
             is referred to from the "Reference" element in a Signature. Unique per document.
         name (str): Name of this Result
-
-    Children:
-        series (optional(SeriesSet)): Container for n-dimensional Data.
-        category_set (list(Category)): Collection of Categories
-        experiment_step (optional(ExperimentStepSet)): Container for multiple ExperimentSteps \
+        series (SeriesSet | None): Container for n-dimensional Data.
+        category_set (list[Category] | None): Collection of Categories
+        experiment_step (ExperimentStepSet | None): Container for multiple ExperimentSteps \
             that describe the process and results.
 
     """

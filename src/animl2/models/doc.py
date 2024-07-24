@@ -35,12 +35,9 @@ class AnIMLDoc(XmlModel, regclass=AnIMLDocBase):
         xmlns (str): XML namespace
         xmlns_xsi (str): XML namespace for schema instance
         xsi_schemalocation (str): Schema location
+        sample_set (SampleSet | None): Collection of Samples
+        experiment_set (ExperimentStepSet | None): Collection of Experiment Steps
 
-    Children:
-        sample_set (optional(SampleSet)): Collection of Samples
-        experiment_set (optional(ExperimentStepSet)): Collection of Experiment Steps
-
-    TODO: Add audit_trail_entry_set and signature_set
 
     """
 
@@ -74,7 +71,7 @@ class AnIMLDoc(XmlModel, regclass=AnIMLDocBase):
         return cls.load_xml(et.getroot())
 
     def append(self, item: Union[ExperimentStep, Sample]):
-        """Add and return a sample to the document"""
+        """Add a sample or experiment step to the document"""
         if isinstance(item, ExperimentStep):
             if self.experiment_set is None:
                 self.experiment_set = ExperimentStepSet()

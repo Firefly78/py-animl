@@ -33,19 +33,24 @@ AnIMLDocBase.register(PlotScale.__name__, PlotScale)
 class Series(XmlModel, regclass=AnIMLDocBase):
     """Container for multiple Values.
 
+    ```xml
+    <Series name="..." dependency="..." id="..." plotScale="..." seriesID="..." seriesType="..." visible="...">
+        <ValueSet .../>
+        <Unit .../>
+    </Series>
+
     Attributes:
         name (str): Plain-text name of this item.
         dependency (Dependency): Specified whether the Series is independent or dependent.
-        id (str): Anchor point for digital signature. This identifier is referred to from the "Reference" \
+        id (str | None): Anchor point for digital signature. This identifier is referred to from the "Reference" \
               element in a Signature. Unique per document.
-        plotScale (PlotScale): Specifies whether the data in this Series is typically plotted on a linear \
+        plotScale (PlotScale | None): Specifies whether the data in this Series is typically plotted on a linear \
               or logarithmic scale.
         seriesID (str): Identifies the Series. Used in References from subordinate ExperimentSteps. Unique \
               per SeriesSet.
         seriesType (ParameterTypes): Data type used by all values in this Series.
-        visible (bool): Specifies whether data in this Series is to be displayed to the user by default.
+        visible (bool | None): Specifies whether data in this Series is to be displayed to the user by default.
 
-    Children:
         valuesets (list[AutoIncrementedValueSet | EncodedValueSet | IndividualValueSet]): A set of ValueSet elements.
         unit (Unit): The unit of measure for the data in this Series.
     """
@@ -69,15 +74,21 @@ class Series(XmlModel, regclass=AnIMLDocBase):
 class SeriesSet(XmlModel, regclass=AnIMLDocBase):
     """Container for n-dimensional Data.
 
+    ```xml
+    <SeriesSet name="..." id="..." length="...">
+        <Series .../>
+        <Series .../>
+        ...
+    </SeriesSet>
+    ```
+
     Attributes:
         name (str): Plain-text name of this item.
-        id (str): Anchor point for digital signature. This identifier is referred to from the "Reference" \
+        id (str | None): Anchor point for digital signature. This identifier is referred to from the "Reference" \
             element in a Signature. Unique per document.
         length (int): Number of data points each Series contains.
 
-    Children:
         series (list[Series]): A set of Series elements.
-
     """
 
     name: Annotated[str, ATTRIB]

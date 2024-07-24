@@ -16,15 +16,21 @@ class Category(XmlModel, regclass=AnIMLDocBase):
     """
     Defines a category of Parameters and SeriesSets. Used to model hierarchies.
 
+    ```xml
+    <Category name="..." id="...">
+        <Parameter .../>
+        <SeriesSet .../>
+        <Category .../>
+    </Category>
+    ```
+
     Attributes:
         name (str): Plain-text name of this item.
-        id (str): Anchor point for digital signature. This identifier is referred \
+        id (str | None): Anchor point for digital signature. This identifier is referred \
               to from the "Reference" element in a Signature. Unique per document.
-
-    Children:
-        parameters (list[Parameter]): List of Parameters that are part of this Category.
-        series_sets (list[SeriesSet]): List of SeriesSets that are part of this Category.
-        sub_categories (list[Category]): List of sub-categories that are part of this Category.
+        parameters (list[Parameter] | None): List of Parameters that are part of this Category.
+        series_sets (list[SeriesSet] | None): List of SeriesSets that are part of this Category.
+        sub_categories (list[Category] | None): List of sub-categories that are part of this Category.
 
     """
 

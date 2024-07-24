@@ -11,7 +11,12 @@ class DeviceIdentifier(XmlModel, regclass=AnIMLDocBase):
     """
     Unique name or identifier of the device.
 
-    Text:
+    ```xml
+    <DeviceIdentifier>...</DeviceIdentifier>
+
+    ```
+
+    Attributes:
         value (str): Identifier value
     """
 
@@ -24,7 +29,12 @@ class FirmwareVersion(XmlModel, regclass=AnIMLDocBase):
     """
     Version identifier of firmware release.
 
-    Text:
+    ```xml
+    <FirmwareVersion>...</FirmwareVersion>
+
+    ```
+
+    Attributes:
         value (str): Firmware version value
     """
 
@@ -37,7 +47,12 @@ class SerialNumber(XmlModel, regclass=AnIMLDocBase):
     """
     Unique serial number of device
 
-    Text:
+    ```xml
+    <SerialNumber>...</SerialNumber>
+
+    ```
+
+    Attributes:
         value (str): Serial number value
     """
 
@@ -50,12 +65,22 @@ class Device(XmlModel, regclass=AnIMLDocBase):
     """
     Device used to perform experiment.
 
-    Children:
-        firmware (Firmware): Version identifier of firmware release.
-        identifier (DeviceIdentifier): Unique name or identifier of the device.
-        manufacturer (Manufacturer): Company name.
+    ```xml
+    <Device>
+        <DeviceIdentifier>...</DeviceIdentifier>
+        <Manufacturer>...</Manufacturer>
+        <Name>...</Name>
+        <FirmwareVersion>...</FirmwareVersion>
+        <SerialNumber>...</SerialNumber>
+    </Device>
+    ```
+
+    Attributes:
+        identifier (DeviceIdentifier | None): Unique name or identifier of the device.
+        manufacturer (Manufacturer | None): Company name.
         name (Name): Common name.
-        serialNumber (SerialNumber): Unique serial number of device
+        firmware (Firmware | None): Version identifier of firmware release.
+        serialNumber (SerialNumber | None): Unique serial number of device
 
     """
 

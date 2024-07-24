@@ -21,10 +21,14 @@ class Author(XmlModel, regclass=AnIMLDocBase):
     """
     Information about a person, a device or a piece of software authoring AnIML files.
 
+    ```xml
+    <Author userType="human">
+        <Name>...</Name>
+    </Author>
+    ```
+
     Attributes:
         userType (UserType): Type of user (human, device, software)
-
-    Children:
         name (Name): Common name of the author
     """
 
