@@ -4,6 +4,8 @@
 
 Python package for working with AnIML data files.
 
+Currently implements AnIML v0.90, as described per the xml schema [./schemas/animl-core.xsd](./schemas/animl-core.xsd), hope to upgrade to v1.0 in the near future.
+
 ## Acknowledgements
 
 The following repos have been used as inspiration for this project:
