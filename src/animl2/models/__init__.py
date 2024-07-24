@@ -3,7 +3,7 @@ from .category import Category
 from .common import Manufacturer, Name
 from .device import Device, DeviceIdentifier, FirmwareVersion, SerialNumber
 from .doc import AnIMLDoc, create_document, open_document
-from .experiment import ExperimentStep, ExperimentStepSet, Result
+from .experiment import ExperimentStep, ExperimentStepSet, Result, Template
 from .infrastructure import (
     EndValue,
     ExperimentDataBulkReference,
@@ -24,7 +24,6 @@ from .series import Dependency, PlotScale, Series, SeriesSet
 from .software import OperatingSystem, Software, Version
 from .tags import Tag, TagSet
 from .technique import Extension, Technique
-from .template import Template
 from .unit import SIUnit, Unit, UnitText
 from .valuesets import AutoIncrementedValueSet, EncodedValueSet, IndividualValueSet
 

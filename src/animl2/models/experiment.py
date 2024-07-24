@@ -12,7 +12,6 @@ from .method import Method
 from .series import SeriesSet
 from .tags import TagSet
 from .technique import Technique
-from .template import Template
 
 
 @dataclass
@@ -103,3 +102,46 @@ class Result(XmlModel, regclass=AnIMLDocBase):
     series: Annotated[Optional[SeriesSet], CHILD]
     category_set: Annotated[Optional[List[Category]], CHILD]
     experiment_step: Annotated[Optional[ExperimentStepSet], CHILD]
+
+
+@dataclass
+class Template(XmlModel, regclass=AnIMLDocBase):
+    """
+    Represents a template for an ExperimentStep.
+
+    ```xml
+    <Template templateID="..." name="..." id="..." sourceDataLocation="...">
+        <TagSet .../>
+        <Technique .../>
+        <Infrastructure .../>
+        <Method .../>
+        <Result .../>
+    </Template>
+    ```
+
+    Attributes:
+        name (str): Name of the template
+        templateID (str): Unique identifier for the template
+        id (str): Anchor point for digital signature. This identifier is referred to \
+            from the "Reference" element in a Signature. Unique per document.
+        sourceDataLocation (str): Points to the original data source. May be a file \
+            name, uri, database ID, etc.
+
+        tag_set (TagSet | None): Set of Tag elements.
+        technique (Technique | None): Reference to Technique Definition used in this Experiment.
+        infrastructure (Infrastructure | None): Contains references to the context \
+            of this Experiment.
+        method (Method | None): Describes how this Experiment was performed.
+        result (Result | None): Container for Data derived from Experiment.
+    """
+
+    name: Annotated[str, ATTRIB]
+    templateID: Annotated[str, ATTRIB]
+    id: Annotated[Optional[str], ATTRIB]
+    sourceDataLocation: Annotated[Optional[str], ATTRIB]
+
+    tag_set: Annotated[Optional[TagSet], CHILD] = None
+    technique: Annotated[Optional[Technique], CHILD] = None
+    infrastructure: Annotated[Optional[Infrastructure], CHILD] = None
+    method: Annotated[Optional[Method], CHILD] = None
+    result: Annotated[Optional[Result], CHILD] = None
