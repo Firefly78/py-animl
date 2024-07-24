@@ -59,20 +59,20 @@ class Parameter(XmlModel, regclass=AnIMLDocBase):
     parameterType: Annotated[ParameterType, ATTRIB]
 
     value: Annotated[
-        Union[
-            BooleanType,
-            DoubleType,
-            DateTimeType,
-            EmbeddedXmlType,
-            FloatType,
-            IntType,
-            LongType,
-            PNGType,
-            StringType,
-            SVGType,
+        Optional[
+            Union[
+                BooleanType,
+                DoubleType,
+                DateTimeType,
+                EmbeddedXmlType,
+                FloatType,
+                IntType,
+                LongType,
+                PNGType,
+                StringType,
+                SVGType,
+            ]
         ],
         CHILD,
-    ]
-    unit: Annotated[Optional[Unit], CHILD]
-
-    id: Annotated[Optional[str], ATTRIB(regex=NC_NAME)] = None
+    ] = None
+    unit: Annotated[Optional[Unit], CHILD] = None
