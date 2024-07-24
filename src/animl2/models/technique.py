@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Annotated, Optional
+from typing import Annotated, Optional, overload
 
 from ..core import ATTRIB, CHILD, XmlModel
 from ..utils.regex import NC_NAME
@@ -60,3 +60,13 @@ class Technique(XmlModel, regclass=AnIMLDocBase):
 
     # Children
     extensions: Annotated[Optional[list[Extension]], CHILD]
+
+    @overload
+    def append(self, item: Extension) -> Extension:
+        """Add an Extension to this Technique"""
+
+    def append(self, item):
+        if self.extensions is None:
+            self.extensions = list()
+        self.extensions.append(item)
+        return item

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Annotated, Optional, Union
+from typing import Annotated, Optional, Union, overload
 
 from ..core import ATTRIB, CHILD, XmlModel
 from ..utils.regex import NC_NAME
@@ -102,6 +102,25 @@ class ExperimentDataReferenceSet(XmlModel, regclass=AnIMLDocBase):
     experiment_bulk_reference_set: Annotated[list[ExperimentDataBulkReference], CHILD]
 
     id: Annotated[Optional[str], ATTRIB(regex=NC_NAME)] = None
+
+    @overload
+    def append(self, item: ExperimentDataReference) -> ExperimentDataReference:
+        """Add an ExperimentDataReference to the set"""
+
+    @overload
+    def append(self, item: ExperimentDataBulkReference) -> ExperimentDataBulkReference:
+        """Add an ExperimentDataBulkReference to the set"""
+
+    def append(self, item):
+        if isinstance(item, ExperimentDataReference):
+            if self.experiment_reference_set is None:
+                self.experiment_reference_set = list()
+            self.experiment_reference_set.append(item)
+        elif isinstance(item, ExperimentDataBulkReference):
+            if self.experiment_bulk_reference_set is None:
+                self.experiment_bulk_reference_set = list()
+            self.experiment_bulk_reference_set.append(item)
+        return item
 
 
 @dataclass
@@ -211,6 +230,16 @@ class ParentDataPointReferenceSet(XmlModel, regclass=AnIMLDocBase):
     # Children
     data_point_reference_set: Annotated[list[ParentDataPointReference], CHILD]
 
+    @overload
+    def append(self, item: ParentDataPointReference) -> ParentDataPointReference:
+        """Add a DataPointReference to the set"""
+
+    def append(self, item):
+        if self.data_point_reference_set is None:
+            self.data_point_reference_set = list()
+        self.data_point_reference_set.append(item)
+        return item
+
 
 @dataclass
 class SampleReference(XmlModel, regclass=AnIMLDocBase):
@@ -297,6 +326,25 @@ class SampleReferenceSet(XmlModel, regclass=AnIMLDocBase):
     # Children
     sample_references: Annotated[Optional[list[SampleReference]], CHILD] = None
     sample_inheritances: Annotated[Optional[list[SampleInheritance]], CHILD] = None
+
+    @overload
+    def append(self, item: SampleReference) -> SampleReference:
+        """Add a SampleReference to the set"""
+
+    @overload
+    def append(self, item: SampleInheritance) -> SampleInheritance:
+        """Add a SampleInheritance to the set"""
+
+    def append(self, item):
+        if isinstance(item, SampleReference):
+            if self.sample_references is None:
+                self.sample_references = list()
+            self.sample_references.append(item)
+        elif isinstance(item, SampleInheritance):
+            if self.sample_inheritances is None:
+                self.sample_inheritances = list()
+            self.sample_inheritances.append(item)
+        return item
 
 
 @dataclass

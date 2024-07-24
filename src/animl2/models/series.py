@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Annotated, List, Optional, Union
+from typing import Annotated, List, Optional, Union, overload
 
 from ..core import ATTRIB, CHILD, XmlModel
 from ..utils.regex import NC_NAME
@@ -69,6 +69,24 @@ class Series(XmlModel, regclass=AnIMLDocBase):
     ] = field(default_factory=list)
     unit: Annotated[Optional[Unit], CHILD] = None
 
+    @overload
+    def append(self, item: AutoIncrementedValueSet) -> AutoIncrementedValueSet:
+        """Add an AutoIncrementedValueSet to this Series"""
+
+    @overload
+    def append(self, item: EncodedValueSet) -> EncodedValueSet:
+        """Add an EncodedValueSet to this Series"""
+
+    @overload
+    def append(self, item: IndividualValueSet) -> IndividualValueSet:
+        """Add an IndividualValueSet to this Series"""
+
+    def append(self, item):
+        if self.valuesets is None:
+            self.valuesets = list()
+        self.valuesets.append(item)
+        return item
+
 
 @dataclass
 class SeriesSet(XmlModel, regclass=AnIMLDocBase):
@@ -96,3 +114,13 @@ class SeriesSet(XmlModel, regclass=AnIMLDocBase):
     length: Annotated[int, ATTRIB(**SERIALIZE_INT)]
 
     series: Annotated[list[Series], CHILD]
+
+    @overload
+    def append(self, item: Series) -> Series:
+        """Add a Series to this SeriesSet"""
+
+    def append(self, item):
+        if self.series is None:
+            self.series = list()
+        self.series.append(item)
+        return item

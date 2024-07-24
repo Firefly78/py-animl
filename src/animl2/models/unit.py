@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Annotated, Optional
+from typing import Annotated, Optional, overload
 
 from ..core import ATTRIB, CHILD, TEXT, XmlModel
 from .base import AnIMLDocBase
@@ -30,6 +30,16 @@ class Unit(XmlModel, regclass=AnIMLDocBase):
     quantity: Annotated[Optional[str], ATTRIB] = None
 
     siunits: Annotated[Optional[list[SIUnit]], CHILD] = None
+
+    @overload
+    def append(self, item: SIUnit) -> SIUnit:
+        """Add a SIUnit to this Unit"""
+
+    def append(self, item):
+        if self.siunits is None:
+            self.siunits = list()
+        self.siunits.append(item)
+        return item
 
 
 class UnitText(str, Enum):

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Annotated, Optional
+from typing import Annotated, Optional, overload
 
 from ..core import ATTRIB, CHILD, XmlModel
 from ..utils.regex import NC_NAME
@@ -74,11 +74,6 @@ class Sample(XmlModel, regclass=AnIMLDocBase):
     tag_set: Annotated[Optional[TagSet], CHILD] = None
     category: Annotated[Optional[Category], CHILD] = None
 
-    def append(self, item: Tag):
-        if self.tag_set is None:
-            self.tag_set = TagSet()
-        return self.tag_set.append(item)
-
 
 @dataclass
 class SampleSet(XmlModel, regclass=AnIMLDocBase):
@@ -106,7 +101,11 @@ class SampleSet(XmlModel, regclass=AnIMLDocBase):
     # Children
     samples: Annotated[list[Sample], CHILD] = field(default_factory=list)
 
-    def append(self, sample: Sample):
+    @overload
+    def append(self, sample: Sample) -> Sample:
+        """Add a Sample to this SampleSet"""
+
+    def append(self, sample):
         if self.samples is None:
             self.samples = list()
         self.samples.append(sample)

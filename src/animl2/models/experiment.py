@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Annotated, List, Optional
+from typing import Annotated, List, Optional, overload
 
 from ..core import ATTRIB, CHILD, XmlModel
 from ..utils.regex import NC_NAME
@@ -59,7 +59,17 @@ class ExperimentStep(XmlModel, regclass=AnIMLDocBase):
     technique: Annotated[Optional[Technique], CHILD] = None
     infrastructure: Annotated[Optional[Infrastructure], CHILD] = None
     method: Annotated[Optional[Method], CHILD] = None
-    result: Annotated[Optional[list[Result]], CHILD] = None
+    results: Annotated[Optional[list[Result]], CHILD] = None
+
+    @overload
+    def append(self, item: Result) -> Result:
+        """Add a Result to the step"""
+
+    def append(self, item):
+        if self.results is None:
+            self.results = list()
+        self.results.append(item)
+        return item
 
 
 @dataclass

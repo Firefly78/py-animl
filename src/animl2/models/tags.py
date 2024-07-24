@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Annotated, Optional
+from typing import Annotated, Optional, overload
 
 from ..core import ATTRIB, CHILD, XmlModel
 from .base import AnIMLDocBase
@@ -46,6 +46,10 @@ class TagSet(XmlModel, regclass=AnIMLDocBase):
 
     tags: Annotated[Optional[list[Tag]], CHILD] = field(default_factory=list)
 
-    def append(self, tag: Tag):
-        self.tags.append(tag)
-        return tag
+    @overload
+    def append(self, item: Tag) -> Tag:
+        """Add a Tag to this TagSet"""
+
+    def append(self, item):
+        self.tags.append(item)
+        return item

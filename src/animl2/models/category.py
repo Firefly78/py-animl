@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Annotated, Optional, Union
+from typing import Annotated, Optional, TypeVar, Union, overload
 
 from animl2.core.fields import ATTRIB
 
@@ -47,8 +47,19 @@ class Category(XmlModel, regclass=AnIMLDocBase):
         default_factory=list
     )
 
-    def append(self, item: Union[Parameter, SeriesSet, Category]):
-        """Add and return a sub-item to this category"""
+    @overload
+    def append(self, item: Parameter) -> Parameter:
+        """Adda Parameter to this category"""
+
+    @overload
+    def append(self, item: SeriesSet) -> SeriesSet:
+        """Add a SeriesSet to this category"""
+
+    @overload
+    def append(self, item: Category) -> Category:
+        """Add a sub-category to this category"""
+
+    def append(self, item):
         if isinstance(item, Parameter):
             if self.parameters is None:
                 self.parameters = list()

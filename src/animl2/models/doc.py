@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from io import StringIO
-from typing import IO, Annotated, Optional, Union
+from typing import IO, Annotated, Optional, Union, overload
 from xml.etree.ElementTree import ElementTree
 
 from ..core import ATTRIB, CHILD, XmlModel, scrub_namespace
@@ -70,8 +70,15 @@ class AnIMLDoc(XmlModel, regclass=AnIMLDocBase):
         scrub_namespace(et.getroot())
         return cls.load_xml(et.getroot())
 
-    def append(self, item: Union[ExperimentStep, Sample]):
-        """Add a sample or experiment step to the document"""
+    @overload
+    def append(self, item: ExperimentStep) -> ExperimentStep:
+        """Add an experiment step to the document"""
+
+    @overload
+    def append(self, item: Sample) -> Sample:
+        """Add a sample to the document"""
+
+    def append(self, item):
         if isinstance(item, ExperimentStep):
             if self.experiment_set is None:
                 self.experiment_set = ExperimentStepSet()
