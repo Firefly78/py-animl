@@ -78,11 +78,13 @@ class AnIMLDoc(XmlModel, regclass=AnIMLDocBase):
         if isinstance(item, ExperimentStep):
             if self.experiment_set is None:
                 self.experiment_set = ExperimentStepSet()
-            self.experiment_set.append(item)
+            return self.experiment_set.append(item)
         elif isinstance(item, Sample):
             if self.sample_set is None:
                 self.sample_set = SampleSet()
             return self.sample_set.append(item)
+        else:
+            raise TypeError(f"Expected Sample or ExperimentStep, got {type(item)}")
 
 
 def create_document():
