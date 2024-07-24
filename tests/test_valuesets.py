@@ -33,8 +33,8 @@ class TestAutoIncrSets(unittest.TestCase):
     def test_Load(self):
         txt = """
         <AutoIncrementedValueSet startIndex="0" endIndex="10">
-            <I>5</I>
-            <I>1</I>
+            <StartValue><I>5</I></StartValue>
+            <Increment><I>1</I></Increment>
         </AutoIncrementedValueSet>
         """
         s = AIVS.load_xml(ElementTree.fromstring(txt))
@@ -42,10 +42,10 @@ class TestAutoIncrSets(unittest.TestCase):
         self.assertIsInstance(s, AIVS)
         self.assertEqual(s.startIndex, 0)
         self.assertEqual(s.endIndex, 10)
-        self.assertIsInstance(s.startValue, IntType)
-        self.assertEqual(s.startValue.value, 5)
-        self.assertIsInstance(s.increment, IntType)
-        self.assertEqual(s.increment.value, 1)
+        self.assertIsInstance(s.startValue.value, IntType)
+        self.assertEqual(s.startValue.value.value, 5)
+        self.assertIsInstance(s.increment.value, IntType)
+        self.assertEqual(s.increment.value.value, 1)
 
 
 class TestEncodedValueSet(unittest.TestCase):

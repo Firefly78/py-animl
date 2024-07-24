@@ -27,13 +27,12 @@ class AutoIncrementedValueSet(XmlModel, regclass=AnIMLDocBase):
         endIndex (int): Zero-based index of the last entry in this Value Set. The specification is inclusive.
         startIndex (int): Zero-based index of the first entry in this Value Set. The specification is inclusive.
 
-    Children:
-        startValue (Union[DoubleType, FloatType, IntType, LongType]): Lower boundary of an interval or ValueSet.
-        increment (Union[DoubleType, FloatType, IntType, LongType]): Increment value
+        startValue (StartValue | None): Lower boundary of an interval or ValueSet.
+        increment (Increment | None): Increment value
     """
 
-    startValue: Annotated[Union[DoubleType, FloatType, IntType, LongType], CHILD]
-    increment: Annotated[Union[DoubleType, FloatType, IntType, LongType], CHILD]
+    startValue: Annotated[StartValue, CHILD]
+    increment: Annotated[Increment, CHILD]
 
     endIndex: Annotated[Optional[int], ATTRIB(**SERIALIZE_INT)] = None
     startIndex: Annotated[Optional[int], ATTRIB(**SERIALIZE_INT)] = None
