@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Annotated
 
-from ..core import ATTRIB, XmlModel
+from ..core import ATTRIB, CHILD, XmlModel
 from .base import AnIMLDocBase
 from .common import Name
 
@@ -32,4 +32,4 @@ class Author(XmlModel, regclass=AnIMLDocBase):
     userType: Annotated[UserType, ATTRIB]
 
     # Children
-    name: Annotated[Name, ATTRIB]
+    name: Annotated[Name, CHILD]
