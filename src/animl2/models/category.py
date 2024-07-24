@@ -56,6 +56,8 @@ class Category(XmlModel, regclass=AnIMLDocBase):
                 self.sub_categories = list()
             self.sub_categories.append(item)
         else:
-            raise ValueError(f"Unknown item type: {type(item)}")
+            raise TypeError(
+                f"Expected Parameter, SeriesSet, or Category, got {type(item)}"
+            )
 
         return item
