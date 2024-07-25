@@ -83,7 +83,6 @@ class Sample(XmlModel, regclass=AnIMLDocBase):
             self.tag_set = TagSet()
         self.tag_set.append(tag)
         return tag
-    
 
 
 @dataclass
