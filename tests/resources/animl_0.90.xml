@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AnIML version="0.90"
+    xmlns="urn:org:astm:animl:schema:core:draft:0.90"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="urn:org:astm:animl:schema:core:draft:0.90 http://schemas.animl.org/current/animl-core.xsd">
+
+    <SampleSet>
+        <Sample name="john-snow" sampleID="js1">
+            <TagSet>
+                <Tag name="my_tag" value="tag1" />
+            </TagSet>
+            <Category name="data1" id="d1">
+                <Category name="sub-data2" id="d2">
+                    <Parameter name="magic" parameterType="Int32" id="magic1">
+                        <I>42</I>
+                        <Unit label="m" quantity="1">
+                            <SIUnit exponent="1" factor="1" offset="0">m</SIUnit>
+                        </Unit>
+                    </Parameter>
+                    <SeriesSet name="data-set-1" length="5" id="ds1">
+                        <Series name="fibonacci" dependency="dependent" seriesID="fib1"
+                            plotScale="linear" visible="true" id="f1"
+                            seriesType="Int32">
+                            <IndividualValueSet>
+                                <I>1</I>
+                                <I>1</I>
+                                <I>2</I>
+                                <I>3</I>
+                                <I>5</I>
+                            </IndividualValueSet>
+                        </Series>
+                        <Series name="na" dependency="independent" seriesID="na1" seriesType="Int32">
+                            <AutoIncrementedValueSet startIndex="0" endIndex="4">
+                                <StartValue>
+                                    <I>0</I>
+                                </StartValue>
+                                <Increment>
+                                    <I>1</I>
+                                </Increment>
+                            </AutoIncrementedValueSet>
+                        </Series>
+                        <Series name="bin-1" dependency="independent" seriesID="bin1"
+                            seriesType="Int32">
+                            <EncodedValueSet startIndex="0" endIndex="4">00010002000300040005</EncodedValueSet>
+                        </Series>
+                    </SeriesSet>
+                </Category>
+            </Category>
+        </Sample>
+        <Sample name="sample1" sampleID="s1" barcode="001" comment="my_comment"
+            containerID="container1" containerType="determinate" derived="false" id="id5"
+            locationInContainer="A10" sourceDataLocation="url.html" />
+    </SampleSet>
+
+    <ExperimentStepSet>
+        <Template name="my_template" templateID="my_template1" id="t1" sourceDataLocation="my_url">
+            <TagSet></TagSet>
+            <Technique name="" uri=""> </Technique>
+            <Infrastructure></Infrastructure>
+            <Method></Method>
+            <Result name="my_result"></Result>
+        </Template>
+        <ExperimentStep name="my_experiment" experimentStepID="e1">
+            <Technique name="my_technique" uri="my_technique.com" id="c22" sha256="512">
+                <Extension uri="my_extension.com" name="ext1" sha256="256" />
+                <Extension uri="my_extension2.com" name="ext2" sha256="256.2" />
+            </Technique>
+            <Infrastructure id="infra1">
+                <ExperimentDataReferenceSet>
+                    <ExperimentDataBulkReference role="ref" dataPurpose="produced"
+                        experimentStepIDPrefix="beta" id="b2" />
+                    <ExperimentDataBulkReference role="ref" dataPurpose="produced"
+                        experimentStepIDPrefix="beta2" />
+                </ExperimentDataReferenceSet>
+                <Timestamp>2021-01-01T00:00:00</Timestamp>
+            </Infrastructure>
+            <Method id="meth1" name="my_method">
+                <Author userType="human">
+                    <Name>Humaan</Name>
+                </Author>
+                <Device>
+                    <DeviceIdentifier>5</DeviceIdentifier>
+                    <Name>my_device</Name>
+                    <FirmwareVersion>1</FirmwareVersion>
+                    <SerialNumber>2</SerialNumber>
+                </Device>
+                <Software>
+                    <Manufacturer>Nissån Micrasoft</Manufacturer>
+                    <Name>The software (R)</Name>
+                    <Version>1.0</Version>
+                    <OperatingSystem>Lunatix</OperatingSystem>
+                </Software>
+                <Category name=""></Category>
+            </Method>
+        </ExperimentStep>
+        <ExperimentStep name="" experimentStepID="">
+            <Infrastructure>
+                <ParentDataPointReferenceSet>
+                    <ParentDataPointReference seriesID="x5" id="id2">
+                        <StartValue>
+                            <L>5</L>
+                        </StartValue>
+                        <EndValue>
+                            <D>7.0</D>
+                        </EndValue>
+                    </ParentDataPointReference>
+                </ParentDataPointReferenceSet>
+            </Infrastructure>
+        </ExperimentStep>
+        <ExperimentStep name="" experimentStepID="">
+            <Infrastructure>
+                <SampleReferenceSet id="srs1">
+                    <SampleReference sampleID="" role="" samplePurpose="produced" id="ref1" />
+                    <SampleInheritance role="inf" samplePurpose="produced" id="inh1" />
+                </SampleReferenceSet>
+            </Infrastructure>
+        </ExperimentStep>
+    </ExperimentStepSet>
+
+</AnIML>
