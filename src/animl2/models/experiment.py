@@ -87,9 +87,14 @@ class ExperimentStepSet(XmlModel, regclass=AnIMLDocBase):
     ```
 
     Attributes:
+        id (str | None): Anchor point for digital signature. This identifier is referred to \
+            from the "Reference" element in a Signature. Unique per document
         templates (list[Template] | None): Collection of Templates
         experiment_steps (list[ExperimentStep] | None): Collection of ExperimentSteps
     """
+
+    # Attributes
+    id: Annotated[Optional[str], ATTRIB(regex=NC_NAME)] = None
 
     # Children
     templates: Annotated[Optional[list[Template]], CHILD] = field(default_factory=list)
@@ -128,13 +133,13 @@ class Result(XmlModel, regclass=AnIMLDocBase):
     """
 
     # Attributes
-    id: Annotated[Optional[str], ATTRIB(regex=NC_NAME)]
     name: Annotated[str, ATTRIB]
+    id: Annotated[Optional[str], ATTRIB(regex=NC_NAME)] = None
 
     # Children
-    series: Annotated[Optional[SeriesSet], CHILD]
-    category_set: Annotated[Optional[List[Category]], CHILD]
-    experiment_step: Annotated[Optional[ExperimentStepSet], CHILD]
+    series: Annotated[Optional[SeriesSet], CHILD] = None
+    category_set: Annotated[Optional[List[Category]], CHILD] = None
+    experiment_step: Annotated[Optional[ExperimentStepSet], CHILD] = None
 
 
 @dataclass
