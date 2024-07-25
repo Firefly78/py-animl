@@ -74,6 +74,17 @@ class Sample(XmlModel, regclass=AnIMLDocBase):
     tag_set: Annotated[Optional[TagSet], CHILD] = None
     category: Annotated[Optional[Category], CHILD] = None
 
+    @overload
+    def append(self, tag: Tag) -> Tag:
+        """Add a Tag to this Sample's TagSet"""
+
+    def append(self, tag):
+        if self.tag_set is None:
+            self.tag_set = TagSet()
+        self.tag_set.append(tag)
+        return tag
+    
+
 
 @dataclass
 class SampleSet(XmlModel, regclass=AnIMLDocBase):
