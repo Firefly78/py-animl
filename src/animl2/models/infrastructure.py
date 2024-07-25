@@ -389,3 +389,48 @@ class Infrastructure(XmlModel, regclass=AnIMLDocBase):
         Optional[ExperimentDataReferenceSet], CHILD
     ] = None
     time_stamp: Annotated[Optional[Timestamp], CHILD] = None
+
+    @overload
+    def append(self, item: SampleReference) -> SampleReference:
+        """Add a SampleReference to the Infrastructure"""
+
+    @overload
+    def append(self, item: SampleInheritance) -> SampleInheritance:
+        """Add a SampleInheritance to the Infrastructure"""
+
+    @overload
+    def append(self, item: ParentDataPointReference) -> ParentDataPointReference:
+        """Add a DataPointReference to the Infrastructure"""
+
+    @overload
+    def append(self, item: ExperimentDataReference) -> ExperimentDataReference:
+        """Add an ExperimentDataReference to the Infrastructure"""
+
+    @overload
+    def append(self, item: ExperimentDataBulkReference) -> ExperimentDataBulkReference:
+        """Add an ExperimentDataBulkReference to the Infrastructure"""
+
+    def append(self, item):
+        if isinstance(item, SampleReference):
+            if self.sample_reference_set is None:
+                self.sample_reference_set = SampleReferenceSet()
+            self.sample_reference_set.append(item)
+        elif isinstance(item, SampleInheritance):
+            if self.sample_reference_set is None:
+                self.sample_reference_set = SampleReferenceSet()
+            self.sample_reference_set.append(item)
+        elif isinstance(item, ParentDataPointReference):
+            if self.parent_datapoint_refence_set is None:
+                self.parent_datapoint_refence_set = ParentDataPointReferenceSet()
+            self.parent_datapoint_refence_set.append(item)
+        elif isinstance(item, ExperimentDataReference):
+            if self.experiment_data_reference_set is None:
+                self.experiment_data_reference_set = ExperimentDataReferenceSet()
+            self.experiment_data_reference_set.append(item)
+        elif isinstance(item, ExperimentDataBulkReference):
+            if self.experiment_data_reference_set is None:
+                self.experiment_data_reference_set = ExperimentDataReferenceSet()
+            self.experiment_data_reference_set.append(item)
+        else:
+            raise ValueError(f"Cannot append {item} to Infrastructure")
+        return item
