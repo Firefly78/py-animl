@@ -4,7 +4,7 @@ from xml.etree.ElementTree import Element
 from animl2.core import XmlModel
 from animl2.models.common import Manufacturer, Name
 from animl2.models.software import OperatingSystem, Software, Version
-from tests.helpers import make_element
+from helpers import make_element
 
 
 class Test_OperatingSystem(unittest.TestCase):
