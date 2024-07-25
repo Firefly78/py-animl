@@ -1,33 +1,42 @@
-# Simple-AnIML
+# AnIML2
 
 ## Description
 
 Python package for working with AnIML data files.
 
+Currently implements AnIML v0.90, as described per the xml schema [./schemas/animl-core.xsd](./schemas/animl-core.xsd), hope to upgrade to v1.0 in the near future.
+
+## Acknowledgements
+
+The following repos have been used as inspiration for this project:
+
+- https://github.com/FAIRChemistry/pyAnIML
+- https://gitlab.com/opensourcelab/scientificdata/animl/animl_python
+
 ## Scope
 
 - Create, open & edit AnIML files
 - Provide a simple interface to the AnIML schema and to assist users in avoiding common pitfalls
-- The package does not check for logical inconsistencies in the files, e.g. missing references, duplicate IDs, etc. Instead this is left to the user and/or schema validation tools.
+- The package does not check for logical inconsistencies in the files, e.g. missing references, duplicate IDs, etc. Instead this is left to the user and/or schema validation tools. (Might be addressed in a future version :)
 
 ## Installation
 
-Package is available on PyPI under the name `simple-animl` and can be installed using pip.
+Package is available on PyPI under the name `animl2` and can be installed using pip.
 
 ## Example
 
 ```python
 from xml.dom import minidom
 from xml.etree import ElementTree as ET
-from simple_animl import AnIMLDoc, Sample, SampleSet
+from animl2.models import AnIMLDoc, Sample
 
 doc = AnIMLDoc()
-doc.sample_set = SampleSet()
-doc.sample_set.add(Sample(name='sample1', sampleID="1"))
-doc.sample_set.add(Sample(name='sample2', sampleID="2"))
-doc.sample_set.add(Sample(name='sample3', sampleID="3"))
+doc.append(Sample(name='sample1', sampleID="1"))
+doc.append(Sample(name='sample2', sampleID="2"))
+doc.append(Sample(name='sample3', sampleID="3"))
 
 et = doc.dump_xml()
+
 xml_string = minidom.parseString(ET.tostring(et)).toprettyxml(indent="  ")
 
 print(xml_string)

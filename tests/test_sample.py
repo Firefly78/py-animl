@@ -1,9 +1,9 @@
 import unittest
 from xml.etree import ElementTree
 
-from simple_animl import AnIMLDoc
-from simple_animl.models.core import XmlModel
-from simple_animl.models.sample import Sample, SampleSet
+from animl2.core import XmlModel
+from animl2.models.doc import AnIMLDoc
+from animl2.models.sample import Sample, SampleSet
 
 
 class TestSample(unittest.TestCase):
@@ -16,22 +16,22 @@ class TestSample(unittest.TestCase):
         s1 = Sample(name="Sample 1", sampleID="1234")
         s2 = Sample(name="Sample 2", sampleID="5678")
         doc.sample_set = SampleSet()
-        doc.sample_set.add(s1)
-        doc.sample_set.add(s2)
+        doc.sample_set.append(s1)
+        doc.sample_set.append(s2)
         self.assertIn(s1, doc.sample_set.samples)
         self.assertIn(s2, doc.sample_set.samples)
 
     def test_SetID(self):
         doc = AnIMLDoc()
         doc.sample_set = SampleSet(id="Hello")
-        doc.sample_set.add(Sample(name="Sample 1", sampleID="1234"))
+        doc.sample_set.append(Sample(name="Sample 1", sampleID="1234"))
 
     def test_Dump(self):
         doc = AnIMLDoc()
         doc.sample_set = SampleSet()
-        doc.sample_set.add(Sample(name="Sample 1", sampleID="1"))
-        doc.sample_set.add(Sample(name="Sample 2", sampleID="2"))
-        doc.sample_set.add(Sample(name="Sample 3", sampleID="3"))
+        doc.sample_set.append(Sample(name="Sample 1", sampleID="1"))
+        doc.sample_set.append(Sample(name="Sample 2", sampleID="2"))
+        doc.sample_set.append(Sample(name="Sample 3", sampleID="3"))
         xml = doc.dump_xml()
         """
         xml = <AnIML version="0.90"
@@ -72,7 +72,6 @@ class TestSample(unittest.TestCase):
         </AnIML>"""
 
         doc = AnIMLDoc.loads(txt)
-        print(doc)
         samples = doc.sample_set.samples
         self.assertEqual(len(samples), 3)
         self.assertEqual(samples[0].name, "Sample 1")
@@ -81,3 +80,9 @@ class TestSample(unittest.TestCase):
         self.assertEqual(samples[0].sampleID, "1")
         self.assertEqual(samples[1].sampleID, "2")
         self.assertEqual(samples[2].sampleID, "3")
+
+    def testLoadSample(self):
+        txt = """<Sample name="Sample 1" sampleID="1"/>"""
+        sample = Sample.load_xml(ElementTree.fromstring(txt))
+        self.assertEqual(sample.name, "Sample 1")
+        self.assertEqual(sample.sampleID, "1")
