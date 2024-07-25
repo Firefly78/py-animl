@@ -354,7 +354,7 @@ class XmlModel(metaclass=XmlMeta):
             if name not in x.attrib:
                 raise ValueError(f"Missing attribute '{x.tag}.{name}'")
 
-            arguments[name] = attr.validate_ex(attr.deserialize(x.attrib[name]))
+            arguments[attr.name] = attr.validate_ex(attr.deserialize(x.attrib[name]))
 
         return arguments
 
