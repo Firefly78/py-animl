@@ -28,16 +28,15 @@ Package is available on PyPI under the name `animl2` and can be installed using 
 ```python
 from xml.dom import minidom
 from xml.etree import ElementTree as ET
-from animl2 import create_document
-from animl2.models import Sample, SampleSet
+from animl2.models import AnIMLDoc, Sample
 
-doc = create_document()
-doc.sample_set = SampleSet()
-doc.sample_set.append(Sample(name='sample1', sampleID="1"))
-doc.sample_set.append(Sample(name='sample2', sampleID="2"))
-doc.sample_set.append(Sample(name='sample3', sampleID="3"))
+doc = AnIMLDoc()
+doc.append(Sample(name='sample1', sampleID="1"))
+doc.append(Sample(name='sample2', sampleID="2"))
+doc.append(Sample(name='sample3', sampleID="3"))
 
 et = doc.dump_xml()
+
 xml_string = minidom.parseString(ET.tostring(et)).toprettyxml(indent="  ")
 
 print(xml_string)
