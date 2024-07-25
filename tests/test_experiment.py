@@ -17,7 +17,7 @@ class TestExperimentStep(unittest.TestCase):
         )
 
     def test_Inheritance(self):
-        self.assertIsInstance(self.example_step, XmlModel)
+        self.assertTrue(issubclass(ExperimentStep, XmlModel))
 
     def test_Dump(self):
         xml = self.example_step.dump_xml()
