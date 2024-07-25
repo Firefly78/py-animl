@@ -57,10 +57,10 @@ class Series(XmlModel, regclass=AnIMLDocBase):
 
     name: Annotated[str, ATTRIB]
     dependency: Annotated[Dependency, ATTRIB]
-    id: Annotated[Optional[str], ATTRIB(regex=NC_NAME)]
-    plotScale: Annotated[Optional[PlotScale], ATTRIB]
     seriesID: Annotated[str, ATTRIB]
     seriesType: Annotated[ParameterType, ATTRIB]
+    id: Annotated[Optional[str], ATTRIB(regex=NC_NAME)] = None
+    plotScale: Annotated[Optional[PlotScale], ATTRIB] = None
     visible: Annotated[Optional[bool], ATTRIB(**SERIALIZE_BOOL)] = None
 
     valuesets: Annotated[

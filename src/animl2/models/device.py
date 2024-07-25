@@ -85,8 +85,8 @@ class Device(XmlModel, regclass=AnIMLDocBase):
     """
 
     # Children
-    identifier: Annotated[Optional[DeviceIdentifier], CHILD]
-    manufacturer: Annotated[Optional[Manufacturer], CHILD]
-    name: Annotated[Name, CHILD]
-    firmware: Annotated[Optional[FirmwareVersion], CHILD]
-    serialNumber: Annotated[Optional[SerialNumber], CHILD]
+    identifier: Annotated[Optional[DeviceIdentifier], CHILD] = None
+    manufacturer: Annotated[Optional[Manufacturer], CHILD] = None
+    name: Annotated[Name, CHILD] = None
+    firmware: Annotated[Optional[FirmwareVersion], CHILD] = None
+    serialNumber: Annotated[Optional[SerialNumber], CHILD] = None
