@@ -24,7 +24,7 @@ class Tag(XmlModel, regclass=AnIMLDocBase):
     """
 
     name: Annotated[str, ATTRIB]
-    value: Annotated[Optional[str], ATTRIB]
+    value: Annotated[Optional[str], ATTRIB] = None
 
 
 @dataclass

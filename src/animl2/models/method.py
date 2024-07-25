@@ -35,11 +35,11 @@ class Method(XmlModel, regclass=AnIMLDocBase):
     """
 
     # Attributes
-    name: Annotated[Optional[str], ATTRIB]
-    id: Annotated[Optional[str], ATTRIB(regex=NC_NAME)]
+    name: Annotated[Optional[str], ATTRIB] = None
+    id: Annotated[Optional[str], ATTRIB(regex=NC_NAME)] = None
 
     # Children
-    author: Annotated[Optional[Author], CHILD]
-    device: Annotated[Optional[Device], CHILD]
-    software: Annotated[Optional[Software], CHILD]
-    category: Annotated[Optional[Category], CHILD]
+    author: Annotated[Optional[Author], CHILD] = None
+    device: Annotated[Optional[Device], CHILD] = None
+    software: Annotated[Optional[Software], CHILD] = None
+    category: Annotated[Optional[Category], CHILD] = None

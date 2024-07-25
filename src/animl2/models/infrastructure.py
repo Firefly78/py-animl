@@ -94,12 +94,16 @@ class ExperimentDataReferenceSet(XmlModel, regclass=AnIMLDocBase):
     Attributes:
         id (str | None): Anchor point for digital signature. This identifier is referred \
             to from the "Reference" element in a Signature. Unique per document.
-        experiment_reference_set (list(ExperimentDataReference)): Collection of ExperimentDataReferences
-        experiment_bulk_reference_set (list(ExperimentDataBulkReference)): Collection of ExperimentDataBulkReferences
+        experiment_reference_set (list[ExperimentDataReference] | None): Collection of ExperimentDataReferences
+        experiment_bulk_reference_set (list[ExperimentDataBulkReference] | None): Collection of ExperimentDataBulkReferences
     """
 
-    experiment_reference_set: Annotated[list[ExperimentDataReference], CHILD]
-    experiment_bulk_reference_set: Annotated[list[ExperimentDataBulkReference], CHILD]
+    experiment_reference_set: Annotated[
+        Optional[list[ExperimentDataReference]], CHILD
+    ] = None
+    experiment_bulk_reference_set: Annotated[
+        Optional[list[ExperimentDataBulkReference]], CHILD
+    ] = None
 
     id: Annotated[Optional[str], ATTRIB(regex=NC_NAME)] = None
 
@@ -224,11 +228,13 @@ class ParentDataPointReferenceSet(XmlModel, regclass=AnIMLDocBase):
     ```
 
     Attributes:
-        data_point_reference_set (list(DataPointReference)): Collection of DataPointReferences
+        data_point_reference_set (list[DataPointReference]): Collection of DataPointReferences
     """
 
     # Children
-    data_point_reference_set: Annotated[list[ParentDataPointReference], CHILD]
+    data_point_reference_set: Annotated[
+        Optional[list[ParentDataPointReference]], CHILD
+    ] = None
 
     @overload
     def append(self, item: ParentDataPointReference) -> ParentDataPointReference:

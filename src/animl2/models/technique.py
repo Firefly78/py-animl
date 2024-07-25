@@ -27,7 +27,7 @@ class Extension(XmlModel, regclass=AnIMLDocBase):
     # Attributes
     name: Annotated[str, ATTRIB]
     uri: Annotated[str, ATTRIB]
-    sha256: Annotated[Optional[str], ATTRIB]
+    sha256: Annotated[Optional[str], ATTRIB] = None
 
 
 @dataclass
@@ -55,11 +55,11 @@ class Technique(XmlModel, regclass=AnIMLDocBase):
     # Attributes
     name: Annotated[str, ATTRIB]
     uri: Annotated[str, ATTRIB]
-    id: Annotated[Optional[str], ATTRIB(regex=NC_NAME)]
-    sha256: Annotated[Optional[str], ATTRIB]
+    id: Annotated[Optional[str], ATTRIB(regex=NC_NAME)] = None
+    sha256: Annotated[Optional[str], ATTRIB] = None
 
     # Children
-    extensions: Annotated[Optional[list[Extension]], CHILD]
+    extensions: Annotated[Optional[list[Extension]], CHILD] = None
 
     @overload
     def append(self, item: Extension) -> Extension:
