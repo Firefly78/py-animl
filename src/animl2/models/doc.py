@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from io import StringIO
+from io import StringIO, TextIOWrapper
 from typing import IO, Annotated, Optional, Union, overload
 from xml.etree.ElementTree import ElementTree
 
@@ -61,7 +61,7 @@ class AnIMLDoc(XmlModel, regclass=AnIMLDocBase):
     def loads(cls, xml: Union[IO, str]) -> AnIMLDoc:
         if isinstance(xml, str):
             xml = StringIO(xml)
-        elif isinstance(xml, IO):
+        elif isinstance(xml, (TextIOWrapper,)):
             pass  # Nothing
         else:
             raise TypeError(f"Expected str or IO, got {type(xml)}")
