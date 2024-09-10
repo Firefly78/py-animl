@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Annotated, Optional, overload
+from typing import Annotated, List, Optional, overload
 
 from ..core import ATTRIB, CHILD, XmlModel
 from ..utils.regex import NC_NAME
@@ -24,6 +24,7 @@ class Sample(XmlModel, regclass=AnIMLDocBase):
     ```xml
     <Sample name="My Sample" sampleID="my_id" ...>
         <TagSet>...</TagSet>
+        <Category>...</Category>
         <Category>...</Category>
     </Sample>
     ```
@@ -72,7 +73,7 @@ class Sample(XmlModel, regclass=AnIMLDocBase):
 
     # Children
     tag_set: Annotated[Optional[TagSet], CHILD] = None
-    category: Annotated[Optional[Category], CHILD] = None
+    category: Annotated[Optional[List[Category]], CHILD] = None
 
     @overload
     def append(self, tag: Tag) -> Tag:

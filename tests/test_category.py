@@ -30,6 +30,6 @@ class TestCategory(unittest.TestCase):
         </Sample>
         """
         sample = Sample.load_xml(ElementTree.fromstring(txt))
-        self.assertIsInstance(sample.category, Category)
-        self.assertEqual(sample.category.name, "Category 1")
-        self.assertEqual(sample.category.id, "1234")
+        self.assertIsInstance(sample.category[0], Category)
+        self.assertEqual(sample.category[0].name, "Category 1")
+        self.assertEqual(sample.category[0].id, "1234")
