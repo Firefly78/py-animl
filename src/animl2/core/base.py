@@ -2,7 +2,14 @@ from __future__ import annotations
 
 import logging
 from enum import Enum
-from typing import Any, _AnnotatedAlias, get_args, get_type_hints, overload
+from typing import (
+    Any,
+    _AnnotatedAlias,
+    _SpecialForm,
+    get_args,
+    get_type_hints,
+    overload,
+)
 from xml.etree import ElementTree as ET
 
 from .annotations import Annotation
@@ -245,13 +252,23 @@ class XmlModel(metaclass=XmlMeta):
 
     def _dump_xml_attributes_(self):
         """Helper function for dumping attributes to XML"""
-        return {
-            field.get_name(): (
-                field.validate_ex(field.serialize(getattr(self, field.name)))
-            )
-            for field in type(self)._get_fields_(Field.Attribute)
-            if getattr(self, field.name) is not None
-        }
+        items: dict[str, Any] = {}
+        for field in type(self)._get_fields_(Field.Attribute):
+            if getattr(self, field.name) is None:
+                continue
+
+            # Get and modify attribute
+            attr = field.serialize(getattr(self, field.name))
+
+            # Check if enum -> Convert to string if so
+            if isinstance(attr, Enum):
+                if not isinstance(attr.value, str):  # Error if not string
+                    raise TypeError(f"Enum value must be string '{self.tag}'")
+                attr = attr.value  # Return value of enum i.e. string
+
+            items[field.get_name()] = attr
+
+        return items
 
     def _dump_xml_children_(self) -> list[ET.Element]:
         """Helper function for dumping children to XML"""
@@ -354,7 +371,15 @@ class XmlModel(metaclass=XmlMeta):
             if name not in x.attrib:
                 raise ValueError(f"Missing attribute '{x.tag}.{name}'")
 
-            arguments[attr.name] = attr.validate_ex(attr.deserialize(x.attrib[name]))
+            val = attr.validate_ex(attr.deserialize(x.attrib[name]))
+
+            # Check if should be enum -> Convert to enum if so
+            # Coverage is not 100% here, but good enough for now
+            if not isinstance(attr.annotation.tType, (_SpecialForm, _AnnotatedAlias)):
+                if issubclass(attr.annotation.tType, Enum):
+                    val = attr.annotation.tType(val)  # Convert to enum
+
+            arguments[attr.name] = val
 
         return arguments
 
