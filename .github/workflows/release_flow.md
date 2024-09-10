@@ -1,20 +1,20 @@
 
 # Notes to self on how to publish
 
-(will have to streamline this later).
 
-
-1. Create new branch named: "release-0.x.x"
-2. Run the following commands:
-    - `git checkout release-0.x.x`
+1. Create feature branches from "dev" branch, either from issues or stand-alone
+2. Create pull requests from feature branches to "dev" branch, perform review
+3. Locally, run the following commands:
+    - `git checkout dev`
     - `bumpver update --major/minor/patch`
-    - `git push origin release-0.x.x --tags`
+    - `git push`
+    - `git push --tags`
 
-3. Create a pull request from "release-0.x.x" to "main" branch.
-4. Complete the merge request.
+4. Create a pull request from "dev" to "main" branch.
+5. Complete the merge request.
 
-5. Got to [github](https://github.com/Firefly78/py-animl)
-6. Click "Create new release"
-7. Choose the tag you just created.
-8. Click "Generate release notes"
-9. Click "Publish release"
+6. Got to [github](https://github.com/Firefly78/py-animl)
+7. Click "Create new release"
+8. Choose the tag you just created.
+9. Click "Generate release notes"
+10. Click "Publish release"
