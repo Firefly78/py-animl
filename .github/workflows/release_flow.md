@@ -10,7 +10,7 @@
     - `git push`
     - `git push --tags`
 
-4. Create a pull request from "dev" to "main" branch.
+4. Create a pull request from "dev" to "main" branch, with the title: `PR: release-x.x.x`
 5. Complete the merge request.
 
 6. Got to [github](https://github.com/Firefly78/py-animl)
